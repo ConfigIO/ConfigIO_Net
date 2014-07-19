@@ -182,6 +182,11 @@ namespace Configuration
             ConfigFile = cfg;
         }
 
+        public ConfigFileParser()
+        {
+            ConfigFile = new ConfigFile();
+        }
+
         public void Parse(string serializedConfigFile)
         {
             var stream = new StringStream(serializedConfigFile);
@@ -190,7 +195,7 @@ namespace Configuration
 
         public void Parse(StringStream stream)
         {
-            var cfg = new ConfigFile();
+            var cfg = ConfigFile;
             var globalSection = cfg.GlobalSection;
             ParseGlobalSection(ref stream, ref globalSection);
 
