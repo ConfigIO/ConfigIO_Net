@@ -50,5 +50,14 @@ namespace ConfigFile_UnitTests
             string s = option;
             Assert.AreEqual("hello", s);
         }
+
+        [TestMethod]
+        public void InvariantCulture()
+        {
+            var option = ConfigOption.Create("3.1415");
+
+            Assert.AreEqual<float>(3.1415f, option);
+            Assert.AreEqual<double>(3.1415, option);
+        }
     }
 }
