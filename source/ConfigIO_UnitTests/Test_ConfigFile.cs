@@ -1,8 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Configuration;
 
-namespace ConfigFile_UnitTests
+namespace Configuration.Tests
 {
     [TestClass]
     public class Test_ConfigFile
@@ -19,7 +18,7 @@ namespace ConfigFile_UnitTests
         [TestMethod]
         public void CreateFromFile()
         {
-            var cfg = ConfigFile.FromFile("data/testData/sample.cfg");
+            var cfg = ConfigFile.FromFile("data/sample.cfg");
 
             Assert.AreEqual<int>(1337, cfg[""]["globalOption"]);
             return;

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigFile", "ConfigFile\ConfigFile.csproj", "{BDEBF242-E9EF-4868-BBB9-FF473A1B8A00}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigIO", "ConfigIO\ConfigIO.csproj", "{BDEBF242-E9EF-4868-BBB9-FF473A1B8A00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigFile_UnitTests", "ConfigFile_UnitTests\ConfigFile_UnitTests.csproj", "{BD5BEEA6-0DA7-4C79-8132-B805EA11003B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigIO_UnitTests", "ConfigIO_UnitTests\ConfigIO_UnitTests.csproj", "{BD5BEEA6-0DA7-4C79-8132-B805EA11003B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

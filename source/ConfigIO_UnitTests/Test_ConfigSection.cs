@@ -1,8 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Configuration;
 
-namespace ConfigFile_UnitTests
+namespace Configuration.Tests
 {
     [TestClass]
     public class Test_ConfigSection
