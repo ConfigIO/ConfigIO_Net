@@ -9,18 +9,50 @@ namespace Configuration
 {
     public class ConfigOption
     {
-
-
         public string Comment { get; set; }
 
         public string Value { get; set; }
         
-        /// <summary>
-        /// Use the static named constructors Create([...]) to create an instance.
-        /// </summary>
-        private ConfigOption()
+        public ConfigOption()
         {
             Value = string.Empty;
+        }
+
+        public ConfigOption(string value)
+        {
+            Value = value;
+        }
+        public ConfigOption(bool value)
+        {
+            Value = value.ToString();
+        }
+        public ConfigOption(byte value)
+        {
+            Value = value.ToString(ConfigFile.CurrentCulture);
+        }
+        public ConfigOption(char value)
+        {
+            Value = value.ToString(ConfigFile.CurrentCulture);
+        }
+        public ConfigOption(short value)
+        {
+            Value = value.ToString(ConfigFile.CurrentCulture);
+        }
+        public ConfigOption(int value)
+        {
+            Value = value.ToString(ConfigFile.CurrentCulture);
+        }
+        public ConfigOption(long value)
+        {
+            Value = value.ToString(ConfigFile.CurrentCulture);
+        }
+        public ConfigOption(float value)
+        {
+            Value = value.ToString(ConfigFile.CurrentCulture);
+        }
+        public ConfigOption(double value)
+        {
+            Value = value.ToString(ConfigFile.CurrentCulture);
         }
 
         public override string ToString()
@@ -28,147 +60,97 @@ namespace Configuration
             return Value;
         }
 
-        #region Static Create Functions
+        #region Implicit conversion operators to a ConfigOption
 
-        public static ConfigOption Create()
+        public static implicit operator ConfigOption(bool value)
         {
-            return new ConfigOption();
+            return new ConfigOption(value);
         }
-
-        public static ConfigOption Create(byte value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(char value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(short value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(int value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(long value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(float value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(double value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(string value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-
-        #endregion
-
-        #region Implicit conversion operators to ConfigOption
 
         public static implicit operator ConfigOption(byte value)
         {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
+            return new ConfigOption(value);
         }
+
         public static implicit operator ConfigOption(char value)
         {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
+            return new ConfigOption(value);
         }
+
         public static implicit operator ConfigOption(short value)
         {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
+            return new ConfigOption(value);
         }
+
         public static implicit operator ConfigOption(int value)
         {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
+            return new ConfigOption(value);
         }
+
         public static implicit operator ConfigOption(long value)
         {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
+            return new ConfigOption(value);
         }
+
         public static implicit operator ConfigOption(float value)
         {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
+            return new ConfigOption(value);
         }
+
         public static implicit operator ConfigOption(double value)
         {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
+            return new ConfigOption(value);
         }
+
         public static implicit operator ConfigOption(string value)
         {
-            var option = new ConfigOption();
-            option.Value = value;
-            return option;
+            return new ConfigOption(value);
         }
 
         #endregion
 
         #region Implicit conversion operators to other types
 
+        public static implicit operator bool(ConfigOption option)
+        {
+            return bool.Parse(option.Value);
+        }
+
         public static implicit operator byte(ConfigOption option)
         {
-            return byte.Parse(option.Value, CultureInfo.InvariantCulture);
+            return byte.Parse(option.Value, ConfigFile.CurrentCulture);
         }
+
         public static implicit operator char(ConfigOption option)
         {
             return char.Parse(option.Value);
         }
+
         public static implicit operator short(ConfigOption option)
         {
-            return short.Parse(option.Value, CultureInfo.InvariantCulture);
+            return short.Parse(option.Value, ConfigFile.CurrentCulture);
         }
+
         public static implicit operator int(ConfigOption option)
         {
-            return int.Parse(option.Value, CultureInfo.InvariantCulture);
+            return int.Parse(option.Value, ConfigFile.CurrentCulture);
         }
+
         public static implicit operator long(ConfigOption option)
         {
-            return long.Parse(option.Value, CultureInfo.InvariantCulture);
+            return long.Parse(option.Value, ConfigFile.CurrentCulture);
         }
+
         public static implicit operator float(ConfigOption option)
         {
-            return float.Parse(option.Value, CultureInfo.InvariantCulture);
+            return float.Parse(option.Value, ConfigFile.CurrentCulture);
         }
+
         public static implicit operator double(ConfigOption option)
         {
-            return double.Parse(option.Value, CultureInfo.InvariantCulture);
+            return double.Parse(option.Value, ConfigFile.CurrentCulture);
         }
+
         public static implicit operator string(ConfigOption option)
         {
             return option.Value;

@@ -225,7 +225,7 @@ namespace Configuration
             }
 
             out_optionName = lineParts[0].Trim();
-            out_option = ConfigOption.Create(lineParts[1].Trim());
+            out_option = new ConfigOption(lineParts[1].Trim());
         }
 
         private void ParseSection(ref StringStream stream,

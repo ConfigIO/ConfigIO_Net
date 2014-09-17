@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Globalization;
 
 namespace Configuration
 {
@@ -11,9 +12,12 @@ namespace Configuration
     {
         static public string GlobalSectionName { get; set; }
 
+        public static CultureInfo CurrentCulture { get; set; }
+
         static ConfigFile()
         {
             GlobalSectionName = "";
+            CurrentCulture = CultureInfo.InvariantCulture;
         }
 
         public IDictionary<string, ConfigSection> Sections { get; set; }
