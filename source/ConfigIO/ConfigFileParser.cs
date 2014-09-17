@@ -8,314 +8,283 @@ using System.Threading.Tasks;
 
 namespace Configuration
 {
-    public enum StringStreamPosition
+    public class SyntaxCharacters
     {
-        Beginning,
-        End,
-        Current,
+        /// <summary>
+        ///    # This is a comment
+        /// ---^
+        /// </summary>
+        public char CommentPrefix { get; set; }
+
+        /// <summary>
+        ///   #[ Multiline comment. ]
+        /// ---^
+        /// </summary>
+        public char MultiLineCommentPrefix { get; set; }
+
+        /// <summary>
+        ///   #[ Multiline comment. ]
+        /// ------------------------^
+        /// </summary>
+        public char MultiLineCommentSuffix { get; set; }
+
+        /// <summary>
+        /// [Section: a = 1; b = 2;]
+        /// --------^
+        /// </summary>
+        public char SectionPrefix { get; set; }
+
+        /// <summary>
+        /// [ThisIsMyName: a = 1; b = 2;]
+        /// -------------^
+        /// </summary>
+        public char SectionNameDelimiter { get; set; }
+
+        /// <summary>
+        /// [Section: a = 1; b = 2;]
+        /// -----------------------^
+        /// </summary>
+        public char SectionSuffix { get; set; }
+
+        /// <summary>
+        /// [Section: a = 1; b = 2;]
+        /// ---------------^------^
+        /// <remarks>Note that a line-break is also a statement delimiter.</remarks>
+        /// </summary>
+        public char StatementDelimiter { get; set; }
+
+        /// <summary>
+        /// [Section: a = 1; b = 2;]
+        /// ------------^------^
+        /// </summary>
+        public char OptionNameValueDelimiter { get; set; }
+
+        /// <summary>
+        /// A string of characters defining a new-line (in its entirety).
+        /// e.g. "\n" or "\r\n"
+        /// <remarks>"\r\n" and "\n\r" are NOT treated as the same!</remarks>
+        /// </summary>
+        public string NewlineDelimiter { get; set; }
     }
 
-    public class StringStream
-    {
-        public const char EndOfStreamChar = unchecked((char)-1);
-
-        public string Content { get; set; }
-
-        public string CurrentContent
-        {
-            get
-            {
-                return Content.Substring(Index);
-            }
-        }
-
-        public int Index { get; set; }
-
-        public bool IsAtEndOfStream
-        {
-            get
-            {
-                return Index >= Content.Length;
-            }
-        }
-
-        public char Current
-        {
-            get
-            {
-                if (IsAtEndOfStream)
-                {
-                    return EndOfStreamChar;
-                }
-                return Peek();
-            }
-        }
-
-        public StringStream(string content)
-        {
-            Index = 0;
-            Content = content;
-        }
-
-        public char Peek()
-        {
-            if (IsAtEndOfStream)
-            {
-                return Content[Content.Length - 1];
-            }
-            return PeekUnchecked();
-        }
-
-        public char PeekUnchecked()
-        {
-            return Content[Index];
-        }
-
-        public void Next(int relativeIndex = 1)
-        {
-            Index += relativeIndex;
-        }
-
-        public char Read()
-        {
-            var result = Peek();
-            Next();
-            return result;
-        }
-
-        public string ReadLine()
-        {
-            var line = new StringBuilder();
-
-            while (true)
-            {
-                if (IsAtEndOfStream || IsAtAnyOf(Environment.NewLine))
-                {
-                    break;
-                }
-
-                line.Append(Content[Index++]);
-            }
-            Skip(Environment.NewLine);
-
-            return line.ToString();
-        }
-
-        public void Seek(int index, StringStreamPosition relativePosition)
-        {
-            switch (relativePosition)
-            {
-            case StringStreamPosition.Beginning:
-                Index = index;
-                break;
-            case StringStreamPosition.End:
-                Index = Content.Length - index - 1;
-                break;
-            case StringStreamPosition.Current:
-                Index += index;
-                break;
-            }
-        }
-
-        public bool IsAt(char c)
-        {
-            if (IsAtEndOfStream)
-            {
-                return false;
-            }
-            return c == PeekUnchecked();
-        }
-
-        public bool IsAtAnyOf(string theChars)
-        {
-            if (IsAtEndOfStream)
-            {
-                return false;
-            }
-            return theChars.Contains(PeekUnchecked());
-        }
-
-        public int Skip(char charToSkip)
-        {
-            var charsToSkip = new string(charToSkip, 1);
-            return Skip(charsToSkip);
-        }
-
-        public int Skip(string charsToSkip)
-        {
-            int numSkipped = 0;
-            while (true)
-            {
-                if (IsAtEndOfStream)
-                {
-                    break;
-                }
-                if (!IsAtAnyOf(charsToSkip))
-                {
-                    break;
-                }
-                Next();
-                ++numSkipped;
-            }
-            return numSkipped;
-        }
-    }
+    public delegate string PreprocessorCallback(string toProcess);
 
     public class ConfigFileParser
     {
-        static public string WhiteSpace { get; set; }
+        public SyntaxCharacters Syntax { get; set; }
 
-        static public string WhiteSpaceNewline { get; set; }
+        public PreprocessorCallback SectionNamePreprocessor { get; set; }
 
-        public const char CommentPrefix = '#';
-        public const char SectionPrefix = '[';
-        public const char SectionSuffix = ']';
-        public const char KeyValueSeparator = '=';
-        public const char ValueDelimiter = ',';
+        public PreprocessorCallback OptionNamePreprocessor { get; set; }
 
-        static ConfigFileParser()
-        {
-            WhiteSpace = " \t\v\b";
-            WhiteSpaceNewline = WhiteSpace + Environment.NewLine;
-        }
-        public ConfigFile ConfigFile { get; set; }
-
-        public ConfigFileParser(ConfigFile cfg)
-        {
-            ConfigFile = cfg;
-        }
+        public PreprocessorCallback OptionValuePreprocessor { get; set; }
 
         public ConfigFileParser()
         {
-            ConfigFile = new ConfigFile();
+            Syntax = new SyntaxCharacters();
+            Syntax.CommentPrefix = '#';
+            Syntax.MultiLineCommentPrefix = '[';
+            Syntax.MultiLineCommentSuffix = ']';
+            Syntax.SectionPrefix = '[';
+            Syntax.SectionNameDelimiter = ':';
+            Syntax.SectionSuffix = ']';
+            Syntax.StatementDelimiter = ';';
+            Syntax.OptionNameValueDelimiter = '=';
+            Syntax.NewlineDelimiter = "\n";
+
+            SectionNamePreprocessor = section => section.Trim();
+            OptionNamePreprocessor = key => key.Trim();
+            OptionValuePreprocessor = value => value.Trim();
         }
 
-        public void Parse(string serializedConfigFile)
+        public ConfigSection Parse(string serializedConfigFile)
         {
             var stream = new StringStream(serializedConfigFile);
-            Parse(stream);
+            return Parse(stream);
         }
 
-        public void Parse(StringStream stream)
+        public ConfigSection Parse(StringStream stream)
         {
-            var cfg = ConfigFile;
-            var globalSection = cfg.GlobalSection;
-            ParseGlobalSection(ref stream, ref globalSection);
-
-            while (!stream.IsAtEndOfStream)
-            {
-                stream.Skip(WhiteSpaceNewline);
-
-                string sectionName;
-                ConfigSection section;
-                ParseSection(ref stream, out sectionName, out section);
-                cfg[sectionName] = section;
-            }
-        }
-
-        #region Internals
-
-        private void ParseOption(ref StringStream stream,
-                                 out string out_optionName,
-                                 out ConfigOption out_option)
-        {
-            var splitChars = new char[]{ KeyValueSeparator };
-            var line = stream.ReadLine();
-            var lineParts = line.Split(splitChars, 2);
-            if (lineParts.Length != 2)
-            {
-                throw new InvalidDataException("The config file contains an invalid option-line.");
-            }
-
-            out_optionName = lineParts[0].Trim();
-            out_option = new ConfigOption(lineParts[1].Trim());
-        }
-
-        private void ParseSection(ref StringStream stream,
-                                  out string out_sectionName,
-                                  out ConfigSection out_section)
-        {
-            out_section = new ConfigSection();
-            ParseSectionHeader(ref stream, out out_sectionName);
-            ParseSectionBody(ref stream, ref out_section);
-        }
-
-        private void ParseGlobalSection(ref StringStream stream,
-                                        ref ConfigSection out_section)
-        {
-            ParseSectionBody(ref stream, ref out_section);
-        }
-
-        private void ParseSectionHeader(ref StringStream stream,
-                                        out string ref_sectionName)
-        {
-            // Skip prefix character
-            stream.Read();
-            ref_sectionName = string.Empty;
+            var result = new ConfigSection();
 
             while (true)
             {
-                if (stream.IsAtEndOfStream)
-                {
-                    break;
-                }
-                if (stream.PeekUnchecked() == SectionSuffix)
-                {
-                    // Read the suffix character
-                    stream.Read();
-                    break;
-                }
-                ref_sectionName += (char)stream.Read();
-            }
-        }
+                stream.SkipWhile(c => char.IsWhiteSpace(c));
 
-        private void ParseSectionBody(ref StringStream stream,
-                                      ref ConfigSection ref_section)
-        {
-            stream.Skip(WhiteSpaceNewline);
-            while (true)
-            {
-                stream.Skip(WhiteSpace);
                 if (stream.IsAtEndOfStream)
                 {
                     break;
                 }
 
-                var currentChar = stream.PeekUnchecked();
+                var currentCharacter = stream.PeekUnchecked();
 
-                if (currentChar == SectionPrefix)
+                if (currentCharacter == Syntax.CommentPrefix)
                 {
-                    break;
+                    ParseComment(stream);
+                }
+                else if (currentCharacter == Syntax.SectionPrefix)
+                {
+                    var section = ParseSection(stream);
+                    result.Sections.Add(section);
+                }
+                else
+                {
+                    var option = ParseOption(stream);
+                    result.Options.Add(option);
+                }
+            }
+
+            return result;
+        }
+
+        public ConfigSection ParseSection(StringStream stream)
+        {
+            var section = new ConfigSection();
+
+            stream.SkipUntil(c => c == Syntax.SectionPrefix);
+            stream.Read(); // Read the section prefix character.
+
+            var nameStart = new StringStream(stream);
+            var nameLength = stream.SkipUntil(c => c == Syntax.SectionNameDelimiter);
+            stream.Read(); // Read the SectionNameDelimiter ':'
+
+            if (stream.IsAtEndOfStream)
+            {
+                throw new InvalidSyntaxException(
+                    string.Format("Missing section value delimiter: {0}",
+                                  Syntax.SectionNameDelimiter));
+            }
+
+            var name = nameStart.Content.Substring(nameStart.Index, nameLength);
+            section.Name = SectionNamePreprocessor(name);
+
+            while (true)
+            {
+                stream.SkipWhile(c => char.IsWhiteSpace(c));
+
+                if (stream.IsAtEndOfStream)
+                {
+                    throw new InvalidSyntaxException(
+                        string.Format("Missing section suffix: {0}",
+                                        Syntax.SectionSuffix));
                 }
 
-                if (currentChar == CommentPrefix)
+                if (stream.PeekUnchecked() == Syntax.CommentPrefix)
                 {
-                    string comment;
-                    ParseComment(ref stream, out comment);
-                    if (!string.IsNullOrEmpty(ref_section.Comment))
-                    {
-                        comment = Environment.NewLine + comment;
-                    }
-                    ref_section.Comment += comment;
+                    ParseComment(stream);
                     continue;
                 }
 
-                string optionName;
-                ConfigOption option;
-                ParseOption(ref stream, out optionName, out option);
-                ref_section[optionName] = option;
+                if (stream.PeekUnchecked() == Syntax.SectionPrefix)
+                {
+                    var subSection = ParseSection(stream);
+                    section.AddSection(subSection);
+                    continue;
+                }
+
+                if (stream.PeekUnchecked() == Syntax.SectionSuffix)
+                {
+                    stream.Read(); // Read the SectionSuffix ']'
+                    // Note: [:] is a perfectly valid section.
+                    break;
+                }
+
+                var option = ParseOption(stream);
+                section.AddOption(option);
+            }
+
+            return section;
+        }
+
+        public void ParseComment(StringStream stream)
+        {
+            stream.SkipWhile(c => char.IsWhiteSpace(c));
+
+            if (stream.IsAtEndOfStream)
+            {
+                return;
+            }
+
+            var currentCharacter = stream.PeekUnchecked();
+
+            if (currentCharacter != Syntax.CommentPrefix)
+            {
+                return;
+            }
+
+            stream.Read(); // Read the comment prefix '#'
+
+            if (stream.IsAtEndOfStream)
+            {
+                return;
+            }
+
+            currentCharacter = stream.PeekUnchecked();
+
+            if (currentCharacter == Syntax.MultiLineCommentPrefix)
+            {
+                while (true)
+                {
+                    if (stream.IsAtEndOfStream
+                     || stream.PeekUnchecked() == Syntax.MultiLineCommentSuffix)
+                    {
+                        stream.Read();
+                        break;
+                    }
+
+                    stream.SkipUntil(c => c == Syntax.CommentPrefix);
+                    stream.Read(); // Read the comment prefix '#'
+                }
+            }
+            else
+            {
+                stream.SkipUntil(_ => stream.IsAt(Syntax.NewlineDelimiter));
+                stream.Next(Syntax.NewlineDelimiter.Length);
             }
         }
 
-        private void ParseComment(ref StringStream stream,
-                                  out string out_comment)
+        public ConfigOption ParseOption(StringStream stream)
         {
-            // Skip initial prefix character
+            var option = new ConfigOption();
+
+            stream.SkipWhile(c => char.IsWhiteSpace(c));
+
+            // Read the value of the option
+            {
+                var nameStart = new StringStream(stream);
+                var nameLength = stream.SkipUntil(c => c == Syntax.OptionNameValueDelimiter);
+                var name = nameStart.Content.Substring(nameStart.Index, nameLength);
+                option.Name = OptionNamePreprocessor(name);
+            }
+
+            // Read the value-value delimiter '='
             stream.Read();
 
-            out_comment = stream.ReadLine();
-        }
+            // Read the value of the option
+            {
+                var valueStart = new StringStream(stream);
+                var valueLength = 0;
+                while (true)
+                {
+                    if (stream.IsAtEndOfStream
+                        || stream.PeekUnchecked() == Syntax.StatementDelimiter
+                        || stream.PeekUnchecked() == Syntax.SectionPrefix
+                        || stream.PeekUnchecked() == Syntax.SectionSuffix
+                        || stream.PeekUnchecked() == Syntax.CommentPrefix
+                        || stream.IsAt(Syntax.NewlineDelimiter))
+                    {
+                        break;
+                    }
 
-        #endregion
+                    stream.Next();
+                    ++valueLength;
+                }
+
+                var value = valueStart.Content.Substring(valueStart.Index, valueLength);
+                option.Value = OptionValuePreprocessor(value);
+            }
+
+            return option;
+        }
     }
 }

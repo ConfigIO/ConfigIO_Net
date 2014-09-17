@@ -9,105 +9,73 @@ namespace Configuration
 {
     public class ConfigOption
     {
-        public string Comment { get; set; }
+        public string Name { get; set; }
 
         public string Value { get; set; }
         
         public ConfigOption()
         {
+            Name = string.Empty;
             Value = string.Empty;
         }
 
-        public ConfigOption(string value)
+        public ConfigOption(string name)
         {
+            Name = name;
+            Value = string.Empty;
+        }
+
+        public ConfigOption(string name, string value)
+        {
+            Name = name;
             Value = value;
         }
-        public ConfigOption(bool value)
+        public ConfigOption(string name, bool value)
         {
+            Name = name;
             Value = value.ToString();
         }
-        public ConfigOption(byte value)
+        public ConfigOption(string name, byte value)
         {
+            Name = name;
             Value = value.ToString(ConfigFile.CurrentCulture);
         }
-        public ConfigOption(char value)
+        public ConfigOption(string name, char value)
         {
+            Name = name;
             Value = value.ToString(ConfigFile.CurrentCulture);
         }
-        public ConfigOption(short value)
+        public ConfigOption(string name, short value)
         {
+            Name = name;
             Value = value.ToString(ConfigFile.CurrentCulture);
         }
-        public ConfigOption(int value)
+        public ConfigOption(string name, int value)
         {
+            Name = name;
             Value = value.ToString(ConfigFile.CurrentCulture);
         }
-        public ConfigOption(long value)
+        public ConfigOption(string name, long value)
         {
+            Name = name;
             Value = value.ToString(ConfigFile.CurrentCulture);
         }
-        public ConfigOption(float value)
+        public ConfigOption(string name, float value)
         {
+            Name = name;
             Value = value.ToString(ConfigFile.CurrentCulture);
         }
-        public ConfigOption(double value)
+        public ConfigOption(string name, double value)
         {
+            Name = name;
             Value = value.ToString(ConfigFile.CurrentCulture);
         }
 
         public override string ToString()
         {
-            return Value;
+            return string.Format("{0} {1} {2}",
+                Name, ConfigFile.Parser.Syntax.OptionNameValueDelimiter, Value);
         }
-
-        #region Implicit conversion operators to a ConfigOption
-
-        public static implicit operator ConfigOption(bool value)
-        {
-            return new ConfigOption(value);
-        }
-
-        public static implicit operator ConfigOption(byte value)
-        {
-            return new ConfigOption(value);
-        }
-
-        public static implicit operator ConfigOption(char value)
-        {
-            return new ConfigOption(value);
-        }
-
-        public static implicit operator ConfigOption(short value)
-        {
-            return new ConfigOption(value);
-        }
-
-        public static implicit operator ConfigOption(int value)
-        {
-            return new ConfigOption(value);
-        }
-
-        public static implicit operator ConfigOption(long value)
-        {
-            return new ConfigOption(value);
-        }
-
-        public static implicit operator ConfigOption(float value)
-        {
-            return new ConfigOption(value);
-        }
-
-        public static implicit operator ConfigOption(double value)
-        {
-            return new ConfigOption(value);
-        }
-
-        public static implicit operator ConfigOption(string value)
-        {
-            return new ConfigOption(value);
-        }
-
-        #endregion
 
         #region Implicit conversion operators to other types
 

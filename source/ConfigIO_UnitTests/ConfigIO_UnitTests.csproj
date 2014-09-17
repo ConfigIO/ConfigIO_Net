@@ -54,7 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test_ConfigOption.cs" />
     <Compile Include="Test_ConfigSection.cs" />
-    <Compile Include="Test_ConfigFileParser.cs" />
+    <Compile Include="Test_StringStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConfigIO\ConfigIO.csproj">
@@ -63,12 +63,27 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="data\Complete.cfg" />
-    <None Include="data\GlobalOptionAndSection.cfg" />
-    <None Include="data\GlobalOptions2.cfg" />
-    <None Include="data\InlineComment.cfg" />
-    <None Include="data\MultiLineComment.cfg" />
-    <None Include="data\SubSectionOptions.cfg" />
+    <None Include="data\Complete.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\GlobalOptionAndSection.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\GlobalOptions2.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\InlineComment.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\MultiLineComment.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\Section.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\SubSectionOptions.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

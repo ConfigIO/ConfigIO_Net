@@ -16,44 +16,30 @@ namespace Configuration.Tests
         [TestMethod]
         public void CreateWithArgument()
         {
-            var option = new ConfigOption(1);
+            var option = new ConfigOption("", 1);
             Assert.AreEqual<int>(1, option);
 
-            option = new ConfigOption(3.1415f);
+            option = new ConfigOption("", 3.1415f);
             Assert.AreEqual<float>(3.1415f, option);
 
-            option = new ConfigOption("hello world");
+            option = new ConfigOption("", "hello world");
             Assert.AreEqual<string>("hello world", option);
         }
 
         [TestMethod]
         public void ImplicitConversion()
         {
-            var option = new ConfigOption();
+            Assert.AreEqual(1, new ConfigOption("", 1));
 
-            option = 1;
-            Assert.AreEqual<int>(1, option);
+            Assert.AreEqual<float>(3.1415f, new ConfigOption("", 3.1415f));
 
-            int i = option;
-            Assert.AreEqual(1, i);
-
-            option = 3.1415f;
-            Assert.AreEqual<float>(3.1415f, option);
-
-            float f = option;
-            Assert.AreEqual(3.1415f, f);
-
-            option = "hello";
-            Assert.AreEqual<string>("hello", option);
-
-            string s = option;
-            Assert.AreEqual("hello", s);
+            Assert.AreEqual<string>("hello", new ConfigOption("", "hello"));
         }
 
         [TestMethod]
         public void InvariantCulture()
         {
-            var option = new ConfigOption("3.1415");
+            var option = new ConfigOption("", "3.1415");
 
             Assert.AreEqual<float>(3.1415f, option);
             Assert.AreEqual<double>(3.1415, option);

@@ -13,13 +13,13 @@ namespace Configuration.Tests
 
             Assert.AreEqual(0, section.Options.Count);
 
-            section["TestOption1"] = new ConfigOption("hello");
+            section.AddOption(new ConfigOption("TestOption1", "hello"));
             Assert.AreEqual(1, section.Options.Count);
-            Assert.AreEqual<string>("hello", section["TestOption1"]);
+            Assert.AreEqual<string>("hello", section.GetOption("TestOption1"));
 
-            section["TestOption1"] = "world";
+            section.AddOption(new ConfigOption("TestOption1", "world"));
             Assert.AreEqual(1, section.Options.Count);
-            Assert.AreEqual<string>("world", section["TestOption1"]);
+            Assert.AreEqual<string>("world", section.GetOption("TestOption1"));
         }
     }
 }
