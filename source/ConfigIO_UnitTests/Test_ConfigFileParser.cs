@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Configuration.Tests
 {
     [TestClass]
-    public class ConfigFileParser
+    public class Test_ConfigFileParser
     {
         [TestMethod]
         public void TestStringStream()

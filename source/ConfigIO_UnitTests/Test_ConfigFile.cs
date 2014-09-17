@@ -14,14 +14,45 @@ namespace Configuration.Tests
             Assert.AreEqual("", ConfigFile.GlobalSectionName, "If you changed the global section's name, you also have to update this unit test.");
             Assert.AreSame(cfg.GlobalSection, cfg[""]);
         }
+    }
+
+    [TestClass]
+    public class Test_TestFiles
+    {
+        [TestMethod]
+        public void TestComplete()
+        {
+            Assert.Inconclusive("Not implemented.");
+        }
 
         [TestMethod]
-        public void CreateFromFile()
+        public void TestGlobalOptionAndSection()
         {
-            var cfg = ConfigFile.FromFile("data/sample.cfg");
+            Assert.Inconclusive("Not implemented.");
+        }
 
-            Assert.AreEqual<int>(1337, cfg[""]["globalOption"]);
-            return;
+        [TestMethod]
+        public void TestGlobalOptions2()
+        {
+            Assert.Inconclusive("Not implemented.");
+        }
+
+        [TestMethod]
+        public void TestInlineComment()
+        {
+            Assert.Inconclusive("Not implemented.");
+        }
+
+        [TestMethod]
+        public void TestMultiLineComment()
+        {
+            Assert.Inconclusive("Not implemented.");
+        }
+
+        [TestMethod]
+        public void TestSubSectionOptions()
+        {
+            Assert.Inconclusive("Not implemented.");
         }
     }
 }
