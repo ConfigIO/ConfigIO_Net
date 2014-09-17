@@ -135,26 +135,29 @@ namespace Configuration
             return theChars.Contains(PeekUnchecked());
         }
 
-        public void Skip(char charToSkip)
+        public int Skip(char charToSkip)
         {
             var charsToSkip = new string(charToSkip, 1);
-            Skip(charsToSkip);
+            return Skip(charsToSkip);
         }
 
-        public void Skip(string charsToSkip)
+        public int Skip(string charsToSkip)
         {
+            int numSkipped = 0;
             while (true)
             {
                 if (IsAtEndOfStream)
                 {
-                    return;
+                    break;
                 }
                 if (!IsAtAnyOf(charsToSkip))
                 {
-                    return;
+                    break;
                 }
                 Next();
+                ++numSkipped;
             }
+            return numSkipped;
         }
     }
 
