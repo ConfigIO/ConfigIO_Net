@@ -22,17 +22,19 @@ namespace Configuration
             Parser = new ConfigFileParser();
         }
 
-        public static ConfigSection FromFile(string fileName)
+        public static ConfigFile FromFile(string fileName)
         {
             var content = string.Empty;
             using (var fileStream = File.OpenText(fileName))
             {
                 content = fileStream.ReadToEnd();
             }
-            return FromString(content);
+            var cfg = FromString(content);
+            cfg.FileName = fileName;
+            return cfg;
         }
 
-        public static ConfigSection FromString(string content)
+        public static ConfigFile FromString(string content)
         {
             return Parser.Parse(content);
         }

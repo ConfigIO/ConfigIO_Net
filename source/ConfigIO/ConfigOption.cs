@@ -74,7 +74,7 @@ namespace Configuration
         public override string ToString()
         {
             return string.Format("{0} {1} {2}",
-                Name, ConfigFile.Parser.Syntax.OptionNameValueDelimiter, Value);
+                Name, ConfigFile.Parser.Syntax.KeyValueDelimiter, Value);
         }
 
         #region Implicit conversion operators to other types

@@ -104,5 +104,19 @@ namespace Configuration.Tests
             Assert.AreEqual("SectionName", cfg["SectionName"].Name);
             Assert.AreEqual(0, cfg["SectionName"].Options.Count);
         }
+
+        [TestMethod]
+        public void TestIncludeOtherFile()
+        {
+            var cfg = ConfigFile.FromFile("data/IncludeOtherFile.cfg");
+            Assert.AreEqual(1, cfg.Options.Count);
+            Assert.AreEqual(1, cfg.Sections.Count);
+            Assert.AreEqual("value0", cfg.GetOption("Global0"));
+            Assert.AreEqual("OtherConfigFile", cfg["OtherConfigFile"].Name);
+            Assert.IsTrue(cfg["OtherConfigFile"] is ConfigFile);
+
+            Assert.AreEqual(1, cfg["OtherConfigFile"].Options.Count);
+            Assert.AreEqual("value1", cfg["OtherConfigFile"].GetOption("Global0"));
+        }
     }
 }

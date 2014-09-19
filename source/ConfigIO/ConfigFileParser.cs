@@ -29,8 +29,8 @@ namespace Configuration
         public char MultiLineCommentSuffix { get; set; }
 
         /// <summary>
-        /// [Section: a = 1; b = 2;]
-        /// --------^
+        ///    [Section: a = 1; b = 2;]
+        /// ---^
         /// </summary>
         public char SectionPrefix { get; set; }
 
@@ -41,8 +41,8 @@ namespace Configuration
         public char SectionNameDelimiter { get; set; }
 
         /// <summary>
-        /// [Section: a = 1; b = 2;]
-        /// -----------------------^
+        ///    [Section: a = 1; b = 2;]
+        /// --------------------------^
         /// </summary>
         public char SectionSuffix { get; set; }
 
@@ -56,8 +56,11 @@ namespace Configuration
         /// <summary>
         /// [Section: a = 1; b = 2;]
         /// ------------^------^
+        /// or
+        /// [Section = Path/To/ConfigFile.cfg]
+        /// ---------^
         /// </summary>
-        public char OptionNameValueDelimiter { get; set; }
+        public char KeyValueDelimiter { get; set; }
 
         /// <summary>
         /// A string of characters defining a new-line (in its entirety).
@@ -79,6 +82,8 @@ namespace Configuration
 
         public PreprocessorCallback OptionValuePreprocessor { get; set; }
 
+        public PreprocessorCallback FileNamePreprocessor { get; set; }
+
         public ConfigFileParser()
         {
             Syntax = new SyntaxCharacters();
@@ -89,12 +94,13 @@ namespace Configuration
             Syntax.SectionNameDelimiter = ':';
             Syntax.SectionSuffix = ']';
             Syntax.StatementDelimiter = ';';
-            Syntax.OptionNameValueDelimiter = '=';
+            Syntax.KeyValueDelimiter = '=';
             Syntax.NewlineDelimiter = "\n";
 
             SectionNamePreprocessor = section => section.Trim();
             OptionNamePreprocessor = key => key.Trim();
             OptionValuePreprocessor = value => value.Trim();
+            FileNamePreprocessor = value => value.Trim();
         }
 
         public ConfigFile Parse(string serializedConfigFile)
@@ -139,24 +145,55 @@ namespace Configuration
 
         public ConfigSection ParseSection(StringStream stream)
         {
-            var section = new ConfigSection();
-
             stream.SkipUntil(c => c == Syntax.SectionPrefix);
             stream.Read(); // Read the section prefix character.
 
             var nameStart = new StringStream(stream);
-            var nameLength = stream.SkipUntil(c => c == Syntax.SectionNameDelimiter);
-            stream.Read(); // Read the SectionNameDelimiter ':'
+            var nameLength = stream.SkipUntil(
+                c => c == Syntax.SectionNameDelimiter || c == Syntax.KeyValueDelimiter);
+            var delimiter = stream.Read(); // Read the SectionNameDelimiter ':' or the KeyValueDelimiter '='
 
             if (stream.IsAtEndOfStream)
             {
+                // This code is reached when the cfg looks something like this:
+                //     [Hello Option = Value; AnotherOption = Value]
+                // or this:
+                //     [Hello =]
                 throw new InvalidSyntaxException(
                     string.Format("Missing section value delimiter: {0}",
                                   Syntax.SectionNameDelimiter));
             }
 
             var name = nameStart.Content.Substring(nameStart.Index, nameLength);
-            section.Name = SectionNamePreprocessor(name);
+            name = SectionNamePreprocessor(name);
+
+            if (delimiter == Syntax.KeyValueDelimiter)
+            {
+                var fileNameStart = new StringStream(stream);
+                var fileNameLength = stream.SkipUntil(c => c == Syntax.SectionSuffix); // until ']'
+                stream.Read(); // Read the SectionSuffix
+
+                if (stream.IsAtEndOfStream)
+                {
+                    // This code is reached when the cfg looks something like this:
+                    //     [Hello =
+                    if (stream.IsAtEndOfStream)
+                    {
+                        throw new InvalidSyntaxException(
+                            string.Format("Missing section suffix: {0}",
+                                            Syntax.SectionSuffix));
+                    }
+                }
+
+                var fileName = fileNameStart.Content.Substring(fileNameStart.Index, fileNameLength);
+                fileName = FileNamePreprocessor(fileName);
+                var cfg = ConfigFile.FromFile(fileName);
+                cfg.Name = name;
+                return cfg;
+            }
+
+            var section = new ConfigSection();
+            section.Name = name;
 
             while (true)
             {
@@ -252,7 +289,7 @@ namespace Configuration
             // Read the value of the option
             {
                 var nameStart = new StringStream(stream);
-                var nameLength = stream.SkipUntil(c => c == Syntax.OptionNameValueDelimiter);
+                var nameLength = stream.SkipUntil(c => c == Syntax.KeyValueDelimiter);
                 var name = nameStart.Content.Substring(nameStart.Index, nameLength);
                 option.Name = OptionNamePreprocessor(name);
             }
