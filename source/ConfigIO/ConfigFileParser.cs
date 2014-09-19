@@ -97,15 +97,15 @@ namespace Configuration
             OptionValuePreprocessor = value => value.Trim();
         }
 
-        public ConfigSection Parse(string serializedConfigFile)
+        public ConfigFile Parse(string serializedConfigFile)
         {
             var stream = new StringStream(serializedConfigFile);
             return Parse(stream);
         }
 
-        public ConfigSection Parse(StringStream stream)
+        public ConfigFile Parse(StringStream stream)
         {
-            var result = new ConfigSection();
+            var result = new ConfigFile();
 
             while (true)
             {

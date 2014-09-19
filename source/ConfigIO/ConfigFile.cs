@@ -8,9 +8,9 @@ using System.Globalization;
 
 namespace Configuration
 {
-    public static class ConfigFile
+    public class ConfigFile : ConfigSection
     {
-        static public string GlobalSectionName { get; set; }
+        #region Static
 
         public static CultureInfo CurrentCulture { get; set; }
 
@@ -18,12 +18,11 @@ namespace Configuration
 
         static ConfigFile()
         {
-            GlobalSectionName = "";
             CurrentCulture = CultureInfo.InvariantCulture;
             Parser = new ConfigFileParser();
         }
 
-        static public ConfigSection FromFile(string fileName)
+        public static ConfigSection FromFile(string fileName)
         {
             var content = string.Empty;
             using (var fileStream = File.OpenText(fileName))
@@ -33,10 +32,17 @@ namespace Configuration
             return FromString(content);
         }
 
-        static public ConfigSection FromString(string content)
+        public static ConfigSection FromString(string content)
         {
             return Parser.Parse(content);
         }
 
+        #endregion Static
+
+        public string FileName { get; set; }
+
+        internal ConfigFile() : base()
+        {
+        }
     }
 }
