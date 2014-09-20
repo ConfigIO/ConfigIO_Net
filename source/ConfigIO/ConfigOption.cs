@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Configuration.FileIO;
-
+﻿
 namespace Configuration
 {
     public class ConfigOption

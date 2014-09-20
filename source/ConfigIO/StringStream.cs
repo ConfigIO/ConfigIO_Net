@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Configuration
 {
@@ -123,7 +121,10 @@ namespace Configuration
             {
                 return false;
             }
-            return string.Compare(Content, Index, str, index, str.Length) == 0;
+            return string.Compare(Content, Index,
+                                  str, index,
+                                  str.Length,
+                                  StringComparison.CurrentCulture) == 0;
         }
 
         public bool IsAtAnyOf(string theChars)

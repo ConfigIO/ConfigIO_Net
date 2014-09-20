@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Configuration.FileIO;
 
 namespace Configuration
 {
+    [Serializable]
     public class InvalidSyntaxException : Exception
     {
         public InvalidSyntaxException() : base() { }
@@ -14,6 +10,7 @@ namespace Configuration
         public InvalidSyntaxException(string message) : base(message) { }
     }
 
+    [Serializable]
     public class InvalidFileNameException : Exception
     {
         public InvalidFileNameException() : base() { }

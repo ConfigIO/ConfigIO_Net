@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+﻿using Configuration.FileIO;
 using System.Globalization;
-using Configuration.FileIO;
+using System.IO;
 
 namespace Configuration
 {
@@ -55,7 +50,7 @@ namespace Configuration
         {
             if (string.IsNullOrWhiteSpace(FileName))
             {
-                throw new InvalidFileNameException(string.Format("FileName: \"{0}\"", FileName));
+                throw new InvalidFileNameException(string.Format(CurrentCulture, "FileName: \"{0}\"", FileName));
             }
 
             Writer.Write(this);
