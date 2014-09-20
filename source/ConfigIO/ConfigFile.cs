@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
+using Configuration.FileIO;
 
 namespace Configuration
 {
@@ -14,12 +15,15 @@ namespace Configuration
 
         public static CultureInfo CurrentCulture { get; set; }
 
-        public static ConfigFileParser Parser { get; set; }
+        public static ConfigFileReader Parser { get; set; }
+
+        public static ConfigFileWriter Writer { get; set; }
 
         static ConfigFile()
         {
             CurrentCulture = CultureInfo.InvariantCulture;
-            Parser = new ConfigFileParser();
+            Parser = new ConfigFileReader();
+            Writer = new ConfigFileWriter();
         }
 
         public static ConfigFile FromFile(string fileName)
@@ -45,6 +49,16 @@ namespace Configuration
 
         internal ConfigFile() : base()
         {
+        }
+
+        public void SaveToFile()
+        {
+            if (string.IsNullOrWhiteSpace(FileName))
+            {
+                throw new InvalidFileNameException(string.Format("FileName: \"{0}\"", FileName));
+            }
+
+            Writer.Write(this);
         }
     }
 }

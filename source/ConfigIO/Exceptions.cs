@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Configuration.FileIO;
 
 namespace Configuration
 {
@@ -11,5 +12,12 @@ namespace Configuration
         public InvalidSyntaxException() : base() { }
 
         public InvalidSyntaxException(string message) : base(message) { }
+    }
+
+    public class InvalidFileNameException : Exception
+    {
+        public InvalidFileNameException() : base() { }
+
+        public InvalidFileNameException(string message) : base(message) { }
     }
 }

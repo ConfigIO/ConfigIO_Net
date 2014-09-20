@@ -6,102 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Configuration
+namespace Configuration.FileIO
 {
-    public class SyntaxCharacters
+    public class ConfigFileReader : ConfigFileReaderWriterBase
     {
-        /// <summary>
-        ///    # This is a comment
-        /// ---^
-        /// </summary>
-        public char CommentPrefix { get; set; }
-
-        /// <summary>
-        ///   #[ Multiline comment. ]
-        /// ---^
-        /// </summary>
-        public char MultiLineCommentPrefix { get; set; }
-
-        /// <summary>
-        ///   #[ Multiline comment. ]
-        /// ------------------------^
-        /// </summary>
-        public char MultiLineCommentSuffix { get; set; }
-
-        /// <summary>
-        ///    [Section: a = 1; b = 2;]
-        /// ---^
-        /// </summary>
-        public char SectionPrefix { get; set; }
-
-        /// <summary>
-        /// [ThisIsMyName: a = 1; b = 2;]
-        /// -------------^
-        /// </summary>
-        public char SectionNameDelimiter { get; set; }
-
-        /// <summary>
-        ///    [Section: a = 1; b = 2;]
-        /// --------------------------^
-        /// </summary>
-        public char SectionSuffix { get; set; }
-
-        /// <summary>
-        /// [Section: a = 1; b = 2;]
-        /// ---------------^------^
-        /// <remarks>Note that a line-break is also a statement delimiter.</remarks>
-        /// </summary>
-        public char StatementDelimiter { get; set; }
-
-        /// <summary>
-        /// [Section: a = 1; b = 2;]
-        /// ------------^------^
-        /// or
-        /// [Section = Path/To/ConfigFile.cfg]
-        /// ---------^
-        /// </summary>
-        public char KeyValueDelimiter { get; set; }
-
-        /// <summary>
-        /// A string of characters defining a new-line (in its entirety).
-        /// e.g. "\n" or "\r\n"
-        /// <remarks>"\r\n" and "\n\r" are NOT treated as the same!</remarks>
-        /// </summary>
-        public string NewlineDelimiter { get; set; }
-    }
-
-    public delegate string PreprocessorCallback(string toProcess);
-
-    public class ConfigFileParser
-    {
-        public SyntaxCharacters Syntax { get; set; }
-
-        public PreprocessorCallback SectionNamePreprocessor { get; set; }
-
-        public PreprocessorCallback OptionNamePreprocessor { get; set; }
-
-        public PreprocessorCallback OptionValuePreprocessor { get; set; }
-
-        public PreprocessorCallback FileNamePreprocessor { get; set; }
-
-        public ConfigFileParser()
-        {
-            Syntax = new SyntaxCharacters();
-            Syntax.CommentPrefix = '#';
-            Syntax.MultiLineCommentPrefix = '[';
-            Syntax.MultiLineCommentSuffix = ']';
-            Syntax.SectionPrefix = '[';
-            Syntax.SectionNameDelimiter = ':';
-            Syntax.SectionSuffix = ']';
-            Syntax.StatementDelimiter = ';';
-            Syntax.KeyValueDelimiter = '=';
-            Syntax.NewlineDelimiter = "\n";
-
-            SectionNamePreprocessor = section => section.Trim();
-            OptionNamePreprocessor = key => key.Trim();
-            OptionValuePreprocessor = value => value.Trim();
-            FileNamePreprocessor = value => value.Trim();
-        }
+        public ConfigFileReader() : base() {}
 
         public ConfigFile Parse(string serializedConfigFile)
         {

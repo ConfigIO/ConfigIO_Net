@@ -21,10 +21,7 @@ namespace Configuration
 
         public string CurrentContent
         {
-            get
-            {
-                return Content.Substring(Index);
-            }
+            get { return Content.Substring(Index); }
         }
 
         public int Index { get; set; }
@@ -36,14 +33,7 @@ namespace Configuration
 
         public char Current
         {
-            get
-            {
-                if (IsAtEndOfStream)
-                {
-                    return EndOfStreamChar;
-                }
-                return Peek();
-            }
+            get { return IsAtEndOfStream ? EndOfStreamChar : PeekUnchecked(); }
         }
 
         public StringStream(string content)
