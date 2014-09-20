@@ -4,6 +4,12 @@ using System.IO;
 
 namespace Configuration
 {
+
+    public enum ConfigFileSaveOptions
+    {
+
+    }
+    
     public class ConfigFile : ConfigSection
     {
         #region Static
@@ -48,12 +54,23 @@ namespace Configuration
 
         public void SaveToFile()
         {
-            if (string.IsNullOrWhiteSpace(FileName))
+            using (var fileStream = new FileStream(FileName, FileMode.Create))
             {
-                throw new InvalidFileNameException(string.Format(CurrentCulture, "FileName: \"{0}\"", FileName));
+                using (var writer = new StreamWriter(fileStream))
+                {
+                    Writer.Write(writer, this);
+                }
             }
+        }
 
-            Writer.Write(this);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>This method ignores this instance's <code>FileName</code>.</remarks>
+        /// <param name="writer"></param>
+        public void SaveToFile(TextWriter writer)
+        {
+            Writer.Write(writer, this);
         }
     }
 }

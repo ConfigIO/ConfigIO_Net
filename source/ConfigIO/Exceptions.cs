@@ -17,4 +17,11 @@ namespace Configuration
 
         public InvalidFileNameException(string message) : base(message) { }
     }
+
+    public class InvalidObjectStateException : Exception
+    {
+        public InvalidObjectStateException() : base() {}
+
+        public InvalidObjectStateException(string message) : base(message) {}
+    }
 }

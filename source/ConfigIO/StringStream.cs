@@ -108,19 +108,13 @@ namespace Configuration
 
         public bool IsAt(char c)
         {
-            if (IsAtEndOfStream)
-            {
-                return false;
-            }
+            if (IsAtEndOfStream) { return false; }
             return c == PeekUnchecked();
         }
 
         public bool IsAt(string str, int index = 0)
         {
-            if (IsAtEndOfStream)
-            {
-                return false;
-            }
+            if (IsAtEndOfStream) { return false; }
             return string.Compare(Content, Index,
                                   str, index,
                                   str.Length,
@@ -129,10 +123,7 @@ namespace Configuration
 
         public bool IsAtAnyOf(string theChars)
         {
-            if (IsAtEndOfStream)
-            {
-                return false;
-            }
+            if (IsAtEndOfStream) { return false; }
             return theChars.Contains(PeekUnchecked());
         }
 
