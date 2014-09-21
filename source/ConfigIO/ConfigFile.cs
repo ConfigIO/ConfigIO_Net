@@ -17,22 +17,19 @@ namespace Configuration
 
         public static CultureInfo CurrentCulture { get; set; }
 
-        public static ConfigFileReader Parser { get; set; }
-
         public static ConfigFileWriter Writer { get; set; }
 
         public static SyntaxMarkers SyntaxMarkers { get; set; }
 
-        public static ConfigSectionReader Reader { get; set; }
+        public static ConfigFileReader Reader { get; set; }
 
         static ConfigFile()
         {
             CurrentCulture = CultureInfo.InvariantCulture;
-            Parser = new ConfigFileReader();
-            Writer = new ConfigFileWriter();
 
             // Create the instances.
-            Reader = new ConfigSectionReader();
+            Writer = new ConfigFileWriter();
+            Reader = new ConfigFileReader();
 
             SyntaxMarkers = new SyntaxMarkers()
                             {
@@ -62,7 +59,8 @@ namespace Configuration
 
         public static ConfigFile FromString(string content)
         {
-            return Parser.Parse(content);
+            var stream = new StringStream(content);
+            return Reader.Parse(stream);
         }
 
         #endregion Static

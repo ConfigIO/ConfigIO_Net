@@ -4,40 +4,20 @@ using System.Text;
 
 namespace Configuration.FileIO
 {
-    public class ConfigFileWriter : ConfigFileReaderWriterBase
+    public class ConfigFileWriter
     {
-        public string IndentationString { get; set; }
+        public SyntaxMarkers Markers { get; set; }
 
-        /// <summary>
-        /// Wether to write statement delimiters or not (usually ";")
-        /// </summary>
-        /// <example>
-        /// With statement delimiters:
-        /// <code>
-        /// [SectionName:
-        ///     Option0 = Value0;
-        ///     Option1 = Value1;
-        /// ]
-        /// </code>
-        /// Without statement delimiters:
-        /// <code>
-        /// [SectionName:
-        ///     Option0 = Value0
-        ///     Option1 = Value1
-        /// ]
-        /// </code>
-        /// </example>
-        public bool WriteStatementDelimiters { get; set; }
+        public string IndentationString { get; set; }
 
         public ConfigFileWriter() : base()
         {
             IndentationString = new string(' ', 4); // 4 spaces
-            WriteStatementDelimiters = false;
         }
 
         public void Write(TextWriter writer, ConfigFile cfg)
         {
-            writer.NewLine = Syntax.NewlineDelimiter;
+            writer.NewLine = "\n";
             WriteSectionBody(writer, cfg, indentationLevel: 0);
         }
 
@@ -49,10 +29,6 @@ namespace Configuration.FileIO
                     "The given section does not contain a valid identifier.");
             }
 
-            writer.Write(string.Format("{0}{1}", // "[SectionName"
-                                       Syntax.SectionPrefix,
-                                       section.Name));
-
             var cfg = section as ConfigFile;
             if (cfg != null)
             {
@@ -62,16 +38,15 @@ namespace Configuration.FileIO
                         "The given section is a config file but does not contain a valid file identifier.");
                 }
 
-                writer.Write(string.Format(" {0} {1}{2}", // " = Path/To/File.cfg]"
-                                           Syntax.KeyValueDelimiter,
-                                           cfg.FileName,
-                                           Syntax.SectionSuffix));
+                writer.Write(string.Format("{0} {1} {2} {3}", // "[include] SectionName = Path/To/File.cfg"
+                                           Markers.IncludeBeginMarker,
+                                           section.Name,
+                                           Markers.KeyValueDelimiter,
+                                           cfg.FileName));
             }
 
-            writer.WriteLine(Syntax.SectionNameDelimiter); // ":\n"
+            writer.WriteLine("{0}{1}", section.Name, Markers.SectionBodyBeginMarker); // "SectionName:\n"
             WriteSectionBody(writer, section, indentationLevel);
-            Indent(writer, indentationLevel - 1);
-            writer.WriteLine(Syntax.SectionSuffix);
         }
 
         private void WriteSectionBody(TextWriter writer, ConfigSection section, int indentationLevel)
@@ -93,7 +68,7 @@ namespace Configuration.FileIO
         {
             writer.WriteLine(string.Format("{0} {1} {2}",
                                            option.Name,
-                                           Syntax.KeyValueDelimiter,
+                                           Markers.KeyValueDelimiter,
                                            option.Value));
         }
 

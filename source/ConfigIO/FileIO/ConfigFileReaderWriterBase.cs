@@ -3,35 +3,49 @@ namespace Configuration.FileIO
 {
     public delegate string PreprocessorCallback(string toProcess);
 
-    public abstract class ConfigFileReaderWriterBase
+    public class SyntaxMarkers
     {
-        public SyntaxCharacters Syntax { get; set; }
+        /// <summary>
+        /// Key = Value
+        /// ----^
+        /// </summary>
+        public string KeyValueDelimiter { get; set; }
 
-        public PreprocessorCallback SectionNamePreprocessor { get; set; }
+        /// <summary>
+        /// ---------v
+        /// Section 0:
+        ///     opt0 = val0
+        ///     opt1 = val1
+        /// </summary>
+        public string SectionBodyBeginMarker { get; set; }
 
-        public PreprocessorCallback OptionNamePreprocessor { get; set; }
+        /// <summary>
+        ///     [include] Section 0 = Path/To/My/File.cfg
+        /// ----^^^^^^^^^
+        /// or
+        ///     $ Section 0 = Path/To/My/File.cfg
+        /// ----^
+        /// </summary>
+        public string IncludeBeginMarker { get; set; }
 
-        public PreprocessorCallback OptionValuePreprocessor { get; set; }
+        /// <summary>
+        ///     // This is a comment.
+        /// ----^^
+        /// </summary>
+        public string SingleLineCommentBeginMarker { get; set; }
 
-        public PreprocessorCallback FileNamePreprocessor { get; set; }
 
-        public ConfigFileReaderWriterBase()
-        {
-            Syntax = new SyntaxCharacters();
-            Syntax.CommentPrefix = '#';
-            Syntax.MultiLineCommentPrefix = '[';
-            Syntax.MultiLineCommentSuffix = ']';
-            Syntax.SectionPrefix = '[';
-            Syntax.SectionNameDelimiter = ':';
-            Syntax.SectionSuffix = ']';
-            Syntax.StatementDelimiter = ';';
-            Syntax.KeyValueDelimiter = '=';
-            Syntax.NewlineDelimiter = "\n";
+        /// <summary>
+        ///     /* This is a multi-line comment. */
+        /// ----^^
+        /// </summary>
+        public string MultiLineCommentBeginMarker { get; set; }
 
-            SectionNamePreprocessor = section => section.Trim();
-            OptionNamePreprocessor = key => key.Trim();
-            OptionValuePreprocessor = value => value.Trim();
-            FileNamePreprocessor = fileName => fileName.Trim();
-        }
+
+        /// <summary>
+        ///     /* This is a multi-line comment. */
+        /// -------------------------------------^^
+        /// </summary>
+        public string MultiLineCommentEndMarker { get; set; }
     }
 }
