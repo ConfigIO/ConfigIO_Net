@@ -28,8 +28,8 @@ namespace Configuration
             CurrentCulture = CultureInfo.InvariantCulture;
 
             // Create the instances.
-            Writer = new ConfigFileWriter();
             Reader = new ConfigFileReader();
+            Writer = new ConfigFileWriter();
 
             SyntaxMarkers = new SyntaxMarkers()
                             {
@@ -43,6 +43,7 @@ namespace Configuration
 
             // Assign the necessary properties.
             Reader.Markers = SyntaxMarkers;
+            Writer.Markers = SyntaxMarkers;
         }
 
         public static ConfigFile FromFile(string fileName)
@@ -59,8 +60,7 @@ namespace Configuration
 
         public static ConfigFile FromString(string content)
         {
-            var stream = new StringStream(content);
-            return Reader.Parse(stream);
+            return Reader.Parse(content);
         }
 
         #endregion Static

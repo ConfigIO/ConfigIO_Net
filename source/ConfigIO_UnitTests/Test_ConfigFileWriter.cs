@@ -7,11 +7,11 @@ namespace Configuration.Tests
     [TestClass]
     public class Test_ConfigFileWriter
     {
+        static readonly string cfgContent = "Option0 = Value0\nOption1 = Value1\nSection0:\n    Inner0 = Value2\n    InnerSection0:\n        InnerSub0 = Value3\n";
+
         [TestMethod]
         public void TestSavingToExistingWriter()
         {
-            var cfgContent = "Option0 = Value0\nOption1 = Value1\n[Section0:\n    Inner0 = Value2\n    [InnerSection0:\n        InnerSub0 = Value3\n    ]\n]\n";
-
             var cfg = ConfigFile.FromString(cfgContent);
 
             var savedCfgContentBuilder = new StringBuilder();
@@ -27,10 +27,6 @@ namespace Configuration.Tests
         [TestMethod]
         public void TestSavingToFile()
         {
-            //Assert.Inconclusive("Not implemented.");
-
-            var cfgContent = "Option0 = Value0\nOption1 = Value1\n[Section0:\n    Inner0 = Value2\n    [InnerSection0:\n        InnerSub0 = Value3\n    ]\n]\n";
-
             var cfg = ConfigFile.FromString(cfgContent);
             cfg.FileName = "temp/Test_ConfigFileWriter.TestSavingToFile.cfg";
 

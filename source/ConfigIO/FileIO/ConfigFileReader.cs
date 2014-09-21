@@ -48,6 +48,8 @@ namespace Configuration.FileIO
 
         public ConfigFileReaderCallbacks Callbacks { get; set; }
 
+        public bool NormalizeLineEndings { get; set; }
+
         public ConfigFileReader()
         {
             Callbacks = new ConfigFileReaderCallbacks()
@@ -57,6 +59,17 @@ namespace Configuration.FileIO
                             OptionNameProcessor =  name => name.Trim(),
                             FileNameProcessor =    fileName => fileName.Trim(),
                         };
+            NormalizeLineEndings = true;
+        }
+
+        public ConfigFile Parse(string content)
+        {
+            if (NormalizeLineEndings)
+            {
+                content = content.Replace("\r", string.Empty);
+            }
+            var stream = new StringStream(content);
+            return Parse(stream);
         }
 
         public ConfigFile Parse(StringStream stream)
@@ -70,24 +83,19 @@ namespace Configuration.FileIO
             return cfg;
         }
 
-        public ConfigSection ParseSection(StringStream stream, int referenceIndentation)
+        private ConfigSection ParseSection(StringStream stream, int referenceIndentation)
         {
             var section = new ConfigSection();
 
             SkipWhiteSpaceAndComments(stream);
-            CheckStream(stream, ReadStep.ReadSectionBody);
+
+            if (stream.IsAtEndOfStream) { return section; }
 
             // Determine the indentation for this section.
             var sectionIndentation = DetermineLineIndentation(stream);
             var currentIndentation = sectionIndentation;
 
-            Debug.Assert(referenceIndentation == 0 || sectionIndentation != referenceIndentation);
-
-            if (currentIndentation <= referenceIndentation)
-            {
-                // This is an empty section.
-                return section;
-            }
+            Debug.Assert(sectionIndentation != referenceIndentation);
 
             while (true)
             {
@@ -121,12 +129,27 @@ namespace Configuration.FileIO
 
                     // We are at the value of an option.
                     var value = ParseIdentifier(stream);
-                    var option = new ConfigOption()
+
+                    if (name.TrimStart().StartsWith(Markers.IncludeBeginMarker))
                     {
-                        Name = Callbacks.OptionNameProcessor(name),
-                        Value = Callbacks.OptionValueProcessor(value),
-                    };
-                    section.AddOption(option);
+                        // We are at something like:
+                        // [include] SectionName = Path/To/File.cfg
+                        var fileName = Callbacks.FileNameProcessor(value);
+                        var cfg = ConfigFile.FromFile(fileName);
+                        cfg.Name = Callbacks.SectionNameProcessor(name.Replace(Markers.IncludeBeginMarker, string.Empty));
+                        section.AddSection(cfg);
+                    }
+                    else
+                    {
+                        // We are at something like:
+                        // Option = Value
+                        var option = new ConfigOption()
+                        {
+                            Name = Callbacks.OptionNameProcessor(name),
+                            Value = Callbacks.OptionValueProcessor(value),
+                        };
+                        section.AddOption(option);
+                    }
                 }
                 else if (stream.IsAt(Markers.SectionBodyBeginMarker))
                 {
@@ -212,7 +235,7 @@ namespace Configuration.FileIO
             return copy.SkipWhile(c => char.IsWhiteSpace(c));
         }
 
-        public void CheckStream(StringStream stream, ReadStep step)
+        private void CheckStream(StringStream stream, ReadStep step)
         {
             if (stream.IsValid) { return; }
             
