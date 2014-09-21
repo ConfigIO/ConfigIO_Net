@@ -7,7 +7,7 @@ namespace Configuration
 
     /// <summary>
     /// Use it like this:
-    /// <code>var option = rootSection["SubSection"]["SubSubSection"].GetOption("Name");</code>
+    /// <code>var option = rootSection["SubSection"]["SubSubSection"].GetOption("ReadName");</code>
     /// </summary>
     public class ConfigSection
     {
@@ -74,8 +74,8 @@ namespace Configuration
         /// <summary>
         /// Gets a section that is below this section somewhere.
         /// </summary>
-        /// <remarks>The order of the names in the <paramref name="names"/> array is important!</remarks>
-        /// <param name="names">The names of the sections to find, in order.</param>
+        /// <remarks>The order of the names in the <paramref identifier="names"/> array is important!</remarks>
+        /// <param identifier="names">The names of the sections to find, in order.</param>
         /// <returns></returns>
         public ConfigSection GetSection(params string[] names)
         {

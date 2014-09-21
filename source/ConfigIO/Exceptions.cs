@@ -24,4 +24,14 @@ namespace Configuration
 
         public InvalidObjectStateException(string message) : base(message) {}
     }
+
+    public class InvalidIndentationException : InvalidSyntaxException
+    {
+        public InvalidIndentationException(int actual, int expected) :
+            base(string.Format("Expected indentation of {0}, got {1}", expected, actual))
+        {
+        }
+
+        public InvalidIndentationException(string message) : base(message) { }
+    }
 }

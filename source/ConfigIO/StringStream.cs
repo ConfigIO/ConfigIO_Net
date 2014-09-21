@@ -29,10 +29,38 @@ namespace Configuration
             get { return Index >= Content.Length; }
         }
 
+        public bool IsValid
+        {
+            get { return Index >= 0 && Index < Content.Length; }
+        }
+
+        public bool IsInvalid
+        {
+            get { return !IsValid; }
+        }
+
+        public bool IsAtBeginning
+        {
+            get { return Index == 0; }
+        }
+
+        public bool IsAtEnd
+        {
+            get { return Index == Content.Length - 1; }
+        }
+
+        public bool IsAtNewLine
+        {
+            get { return IsInvalid ? false : PeekUnchecked() == '\n'; }
+        }
+
         public char Current
         {
-            get { return IsAtEndOfStream ? EndOfStreamChar : PeekUnchecked(); }
+            get { return IsInvalid ? EndOfStreamChar : PeekUnchecked(); }
         }
+
+        private int _currentLineNumber = 1;
+        public int CurrentLineNumber { get { return _currentLineNumber; } }
 
         public StringStream(string content)
         {
@@ -44,11 +72,12 @@ namespace Configuration
         {
             Index = other.Index;
             Content = other.Content;
+            _currentLineNumber = other._currentLineNumber;
         }
 
         public char Peek()
         {
-            if (IsAtEndOfStream)
+            if (IsInvalid)
             {
                 return Content[Content.Length - 1];
             }
@@ -62,6 +91,11 @@ namespace Configuration
 
         public void Next(int relativeIndex = 1)
         {
+            if (Current == '\n')
+            {
+                _currentLineNumber += Math.Sign(relativeIndex);
+            }
+
             Index += relativeIndex;
         }
 
@@ -78,7 +112,7 @@ namespace Configuration
 
             while (true)
             {
-                if (IsAtEndOfStream || IsAtAnyOf(Environment.NewLine))
+                if (IsInvalid || IsAtAnyOf(Environment.NewLine))
                 {
                     break;
                 }
@@ -108,13 +142,13 @@ namespace Configuration
 
         public bool IsAt(char c)
         {
-            if (IsAtEndOfStream) { return false; }
+            if (IsInvalid) { return false; }
             return c == PeekUnchecked();
         }
 
         public bool IsAt(string str, int index = 0)
         {
-            if (IsAtEndOfStream) { return false; }
+            if (IsInvalid) { return false; }
             return string.Compare(Content, Index,
                                   str, index,
                                   str.Length,
@@ -123,7 +157,7 @@ namespace Configuration
 
         public bool IsAtAnyOf(string theChars)
         {
-            if (IsAtEndOfStream) { return false; }
+            if (IsInvalid) { return false; }
             return theChars.Contains(PeekUnchecked());
         }
 
@@ -138,7 +172,7 @@ namespace Configuration
             int numSkipped = 0;
             while (true)
             {
-                if (IsAtEndOfStream)
+                if (IsInvalid)
                 {
                     break;
                 }
@@ -163,7 +197,7 @@ namespace Configuration
 
             while (true)
             {
-                if (IsAtEndOfStream)
+                if (IsInvalid)
                 {
                     break;
                 }
@@ -190,7 +224,7 @@ namespace Configuration
 
             while (true)
             {
-                if (IsAtEndOfStream)
+                if (IsInvalid)
                 {
                     break;
                 }
@@ -199,6 +233,59 @@ namespace Configuration
                     break;
                 }
                 Next();
+                ++numSkipped;
+            }
+
+            return numSkipped;
+        }
+
+        /// <summary>
+        /// Skips ahead in the stream until the condition becomes true.
+        /// </summary>
+        /// <param value="condition">The condition functor to check when to stip skipping.</param>
+        /// <returns>Number of characters skipped</returns>
+        public int SkipReverseUntil(Func<char, bool> condition)
+        {
+            int numSkipped = 0;
+
+            while (true)
+            {
+                if (IsAtBeginning || IsInvalid)
+                {
+                    break;
+                }
+                if (condition(PeekUnchecked()))
+                {
+                    break;
+                }
+                Next(-1);
+                ++numSkipped;
+            }
+
+            return numSkipped;
+        }
+
+
+        /// <summary>
+        /// Skips ahead in the stream while the given condition is true.
+        /// </summary>
+        /// <param value="condition">The condition functor to check when to stip skipping.</param>
+        /// <returns>Number of characters skipped</returns>
+        public int SkipReverseWhile(Func<char, bool> condition)
+        {
+            int numSkipped = 0;
+
+            while (true)
+            {
+                if (IsAtBeginning || IsInvalid)
+                {
+                    break;
+                }
+                if (!condition(PeekUnchecked()))
+                {
+                    break;
+                }
+                Next(-1);
                 ++numSkipped;
             }
 

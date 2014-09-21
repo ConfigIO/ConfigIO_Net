@@ -1,4 +1,5 @@
 ﻿using Configuration.FileIO;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
@@ -20,11 +21,31 @@ namespace Configuration
 
         public static ConfigFileWriter Writer { get; set; }
 
+        public static SyntaxMarkers SyntaxMarkers { get; set; }
+
+        public static ConfigSectionReader Reader { get; set; }
+
         static ConfigFile()
         {
             CurrentCulture = CultureInfo.InvariantCulture;
             Parser = new ConfigFileReader();
             Writer = new ConfigFileWriter();
+
+            // Create the instances.
+            Reader = new ConfigSectionReader();
+
+            SyntaxMarkers = new SyntaxMarkers()
+                            {
+                                KeyValueDelimiter = "=",
+                                SectionBodyBeginMarker = ":",
+                                IncludeBeginMarker = "[include]",
+                                SingleLineCommentBeginMarker = "//",
+                                MultiLineCommentBeginMarker = "/*",
+                                MultiLineCommentEndMarker = "*/",
+                            };
+
+            // Assign the necessary properties.
+            Reader.Markers = SyntaxMarkers;
         }
 
         public static ConfigFile FromFile(string fileName)
@@ -67,7 +88,7 @@ namespace Configuration
         /// 
         /// </summary>
         /// <remarks>This method ignores this instance's <code>FileName</code>.</remarks>
-        /// <param name="writer"></param>
+        /// <param identifier="writer"></param>
         public void SaveToFile(TextWriter writer)
         {
             Writer.Write(writer, this);
