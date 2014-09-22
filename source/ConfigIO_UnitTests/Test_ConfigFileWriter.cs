@@ -56,5 +56,42 @@ namespace Configuration.Tests
                 Directory.Delete("temp", true);
             }
         }
+
+        [TestMethod]
+        public void TestAddSectionAndSavingToFile()
+        {
+            var cfg = ConfigFile.FromString(cfgContent);
+            cfg.FileName = "temp/Test_ConfigFileWriter.TestAddSectionAndSavingToFile.cfg";
+
+            Directory.CreateDirectory("temp");
+
+            try
+            {
+                cfg.AddSection(new ConfigSection() { Name = "Section1" });
+                cfg["Section1"].AddOption(new ConfigOption() { Name = "Inner1", Value = "value with spaces" });
+
+                using (var fileStream = new FileStream(cfg.FileName, FileMode.Create))
+                {
+                    using (var writer = new StreamWriter(fileStream))
+                    {
+                        cfg.SaveToFile(writer);
+                    }
+                }
+
+                using (var fileStream = new FileStream(cfg.FileName, FileMode.Open, FileAccess.Read))
+                {
+                    using (var reader = new StreamReader(fileStream))
+                    {
+                        var savedContent = reader.ReadToEnd();
+                        var newContent = cfgContent + "Section1:\n    Inner1 = value with spaces\n";
+                        Assert.AreEqual(newContent, savedContent);
+                    }
+                }
+            }
+            finally
+            {
+                Directory.Delete("temp", true);
+            }
+        }
     }
 }
