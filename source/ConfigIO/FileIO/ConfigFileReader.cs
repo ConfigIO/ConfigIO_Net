@@ -5,16 +5,15 @@ using System.Diagnostics;
 using System.Text;
 namespace Configuration.FileIO
 {
-
     public class ConfigFileReaderCallbacks
     {
-        public PreprocessorCallback SectionNameProcessor { get; set; }
+        public TextProcessorCallback SectionNameProcessor { get; set; }
 
-        public PreprocessorCallback OptionNameProcessor { get; set; }
+        public TextProcessorCallback OptionNameProcessor { get; set; }
 
-        public PreprocessorCallback OptionValueProcessor { get; set; }
+        public TextProcessorCallback OptionValueProcessor { get; set; }
 
-        public PreprocessorCallback FileNameProcessor { get; set; }
+        public TextProcessorCallback FileNameProcessor { get; set; }
     }
 
     public enum ReadStep

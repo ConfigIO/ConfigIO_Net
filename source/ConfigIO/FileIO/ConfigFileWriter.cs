@@ -4,20 +4,43 @@ using System.Text;
 
 namespace Configuration.FileIO
 {
+    public class ConfigFileWriterCallbacks
+    {
+        public TextProcessorCallback SectionNameProcessor { get; set; }
+
+        public TextProcessorCallback OptionNameProcessor { get; set; }
+
+        public TextProcessorCallback OptionValueProcessor { get; set; }
+
+        public TextProcessorCallback FileNameProcessor { get; set; }
+    }
+
     public class ConfigFileWriter
     {
         public SyntaxMarkers Markers { get; set; }
 
+        public ConfigFileWriterCallbacks Callbacks { get; set; }
+
         public string IndentationString { get; set; }
+
+        public string NewLine { get; set; }
 
         public ConfigFileWriter() : base()
         {
+            Callbacks = new ConfigFileWriterCallbacks()
+            {
+                SectionNameProcessor = section => section,
+                OptionValueProcessor = value => value,
+                OptionNameProcessor = name => name,
+                FileNameProcessor = fileName => fileName,
+            };
             IndentationString = new string(' ', 4); // 4 spaces
+            NewLine = "\n";
         }
 
         public void Write(TextWriter writer, ConfigFile cfg)
         {
-            writer.NewLine = "\n";
+            writer.NewLine = NewLine;
             WriteSectionBody(writer, cfg, indentationLevel: 0);
         }
 
@@ -40,12 +63,12 @@ namespace Configuration.FileIO
 
                 writer.Write(string.Format("{0} {1} {2} {3}", // "[include] SectionName = Path/To/File.cfg"
                                            Markers.IncludeBeginMarker,
-                                           section.Name,
+                                           Callbacks.SectionNameProcessor(section.Name),
                                            Markers.KeyValueDelimiter,
-                                           cfg.FileName));
+                                           Callbacks.FileNameProcessor(cfg.FileName)));
             }
 
-            writer.WriteLine("{0}{1}", section.Name, Markers.SectionBodyBeginMarker); // "SectionName:\n"
+            writer.WriteLine("{0}{1}", Callbacks.SectionNameProcessor(section.Name), Markers.SectionBodyBeginMarker); // "SectionName:\n"
             WriteSectionBody(writer, section, indentationLevel);
         }
 
@@ -67,9 +90,9 @@ namespace Configuration.FileIO
         private void WriteOption(TextWriter writer, ConfigOption option)
         {
             writer.WriteLine(string.Format("{0} {1} {2}",
-                                           option.Name,
+                                           Callbacks.OptionNameProcessor(option.Name),
                                            Markers.KeyValueDelimiter,
-                                           option.Value));
+                                           Callbacks.OptionValueProcessor(option.Value)));
         }
 
         private void Indent(TextWriter writer, int indentationLevel)

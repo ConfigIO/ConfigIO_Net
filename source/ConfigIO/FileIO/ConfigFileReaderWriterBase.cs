@@ -1,7 +1,7 @@
 ﻿
 namespace Configuration.FileIO
 {
-    public delegate string PreprocessorCallback(string toProcess);
+    public delegate string TextProcessorCallback(string toProcess);
 
     public class SyntaxMarkers
     {
