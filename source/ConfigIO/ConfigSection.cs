@@ -11,6 +11,8 @@ namespace Configuration
     /// </summary>
     public class ConfigSection
     {
+        public ConfigFile Owner { get; set; }
+
         public string Name { get; set; }
 
         public IList<ConfigSection> Sections { get; set; }
@@ -31,27 +33,17 @@ namespace Configuration
 
         public void AddOption(ConfigOption option)
         {
+            option.Owner = Owner;
             for (int i = 0; i < Options.Count; i++)
             {
                 if (Options[i].Name == option.Name)
                 {
+                    Options[i].Owner = null;
                     Options[i] = option;
                     return;
                 }
             }
             Options.Add(option);
-        }
-
-        public void RemoveOption(ConfigOption option)
-        {
-            for (int i = 0; i < Options.Count; i++)
-            {
-                if (Options[i] == option)
-                {
-                    Options.RemoveAt(i);
-                    return;
-                }
-            }
         }
 
         public void RemoveOption(string name)
@@ -60,6 +52,7 @@ namespace Configuration
             {
                 if (Options[i].Name == name)
                 {
+                    Options[i].Owner = null;
                     Options.RemoveAt(i);
                     return;
                 }
@@ -71,26 +64,9 @@ namespace Configuration
             return Sections.Single(s => s.Name == name);
         }
 
-        /// <summary>
-        /// Gets a section that is below this section somewhere.
-        /// </summary>
-        /// <remarks>The order of the names in the <paramref identifier="names"/> array is important!</remarks>
-        /// <param identifier="names">The names of the sections to find, in order.</param>
-        /// <returns></returns>
-        public ConfigSection GetSection(params string[] names)
-        {
-            var current = this;
-
-            foreach (var name in names)
-            {
-                current = current.GetSection(name);
-            }
-
-            return current;
-        }
-
         public void AddSection(ConfigSection section)
         {
+            section.Owner = Owner;
             for (int i = 0; i < Sections.Count; i++)
             {
                 if (Sections[i].Name == section.Name)
@@ -102,24 +78,13 @@ namespace Configuration
             Sections.Add(section);
         }
 
-        public void RemoveSection(ConfigSection section)
-        {
-            for (int i = 0; i < Sections.Count; i++)
-            {
-                if (Sections[i] == section)
-                {
-                    Sections.RemoveAt(i);
-                    return;
-                }
-            }
-        }
-
         public void RemoveSection(string name)
         {
             for (int i = 0; i < Sections.Count; i++)
             {
                 if (Sections[i].Name == name)
                 {
+                    Sections[i].Owner = null;
                     Sections.RemoveAt(i);
                     return;
                 }

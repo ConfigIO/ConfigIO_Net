@@ -142,7 +142,11 @@ namespace Configuration.FileIO
                         // We are at something like:
                         // [include] SectionName = Path/To/File.cfg
                         var fileName = Callbacks.FileNameProcessor(value);
-                        var cfg = new ConfigFile() { FileName = fileName };
+                        var cfg = new ConfigFile()
+                                  {
+                                      Owner = parent.Section.Owner,
+                                      FileName = fileName,
+                                  };
                         cfg.Load();
                         // Remove "[include]" from the name
                         name = name.Replace(Markers.IncludeBeginMarker, string.Empty);
@@ -155,6 +159,7 @@ namespace Configuration.FileIO
                         // Option = Value
                         var option = new ConfigOption()
                         {
+                            Owner = parent.Section.Owner,
                             Name = Callbacks.OptionNameProcessor(name),
                             Value = Callbacks.OptionValueProcessor(value),
                         };
@@ -166,7 +171,7 @@ namespace Configuration.FileIO
                     stream.SkipWhile(_ => stream.IsAt(Markers.SectionBodyBeginMarker));
 
                     // We are at the beginning of a section body
-                    var subSection = new ConfigSection();
+                    var subSection = new ConfigSection() { Owner = parent.Section.Owner };
                     ParseSection(stream, new SectionInfo()
                                          {
                                              Section = subSection,

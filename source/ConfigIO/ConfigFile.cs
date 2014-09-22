@@ -98,14 +98,6 @@ namespace Configuration
 
         public string FileName { get; set; }
 
-        public ConfigFile() : base()
-        {
-            Culture = Defaults.Culture;
-            SyntaxMarkers = Defaults.SyntaxMarkers;
-            Writer = Defaults.Writer;
-            Parser = Defaults.Parser;
-        }
-
         public void Clear()
         {
             Options.Clear();
