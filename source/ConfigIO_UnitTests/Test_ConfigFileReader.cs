@@ -5,7 +5,7 @@ using System.Text;
 namespace Configuration.Tests
 {
     [TestClass]
-    public class Test_ConfigFileReader
+    public class Test_ConfigFileReader : TestBase
     {
         [TestMethod]
         public void TestComplete()
@@ -17,7 +17,7 @@ namespace Configuration.Tests
             Assert.AreEqual<float>(3.1415f, cfg.GetOption("pi"));
             Assert.AreEqual<int>(42, cfg.GetOption("fortyTwo"));
             Assert.AreEqual<int>(666, cfg.GetOption("lastOption"));
-            Assert.AreEqual(2, cfg.Sections.Count);
+            Assert.AreEqual(3, cfg.Sections.Count);
 
             // Section0
             Assert.AreEqual(3, cfg["Section0"].Options.Count);
@@ -46,6 +46,11 @@ namespace Configuration.Tests
             Assert.AreEqual<int>(14, cfg["Section1"]["SubSection0"].GetOption("e"));
             Assert.AreEqual<int>(15, cfg["Section1"]["SubSection0"].GetOption("f"));
             Assert.AreEqual(0, cfg["Section1"]["SubSection0"].Sections.Count);
+
+            // Section1/SubSection0
+            Assert.AreEqual(1, cfg["IncludedSection"].Options.Count);
+            Assert.AreEqual("value1", cfg["IncludedSection"].GetOption("Global0"));
+            Assert.AreEqual(0, cfg["IncludedSection"].Sections.Count);
         }
 
         [TestMethod]

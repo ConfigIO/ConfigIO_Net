@@ -3,7 +3,7 @@
 namespace Configuration.Tests
 {
     [TestClass]
-    public class Test_ConfigOption
+    public class Test_ConfigOption : TestBase
     {
         [TestMethod]
         public void Create()

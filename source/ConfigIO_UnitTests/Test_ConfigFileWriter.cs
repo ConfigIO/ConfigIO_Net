@@ -5,7 +5,7 @@ using System.Text;
 namespace Configuration.Tests
 {
     [TestClass]
-    public class Test_ConfigFileWriter
+    public class Test_ConfigFileWriter : TestBase
     {
         static readonly string cfgContent = "Option0 = Value0\nOption1 = Value1\nSection0:\n    Inner0 = Value2\n    InnerSection0:\n        InnerSub0 = Value3\n";
 

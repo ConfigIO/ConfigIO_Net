@@ -3,7 +3,7 @@
 namespace Configuration.Tests
 {
     [TestClass]
-    public class Test_StringStream
+    public class Test_StringStream : TestBase
     {
         [TestMethod]
         public void TestBasics()

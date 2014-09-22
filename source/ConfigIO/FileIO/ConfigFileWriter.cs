@@ -49,7 +49,7 @@ namespace Configuration.FileIO
             if (string.IsNullOrWhiteSpace(section.Name))
             {
                 throw new InvalidObjectStateException(
-                    "The given section does not contain a valid identifier.");
+                    "The given section does not contain a valid name.");
             }
 
             var cfg = section as ConfigFile;
@@ -58,7 +58,7 @@ namespace Configuration.FileIO
                 if (string.IsNullOrWhiteSpace(cfg.FileName))
                 {
                     throw new InvalidObjectStateException(
-                        "The given section is a config file but does not contain a valid file identifier.");
+                        "The given section is a config file but does not contain a valid file name.");
                 }
 
                 writer.Write(string.Format("{0} {1} {2} {3}", // "[include] SectionName = Path/To/File.cfg"

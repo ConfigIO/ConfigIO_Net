@@ -1,11 +1,15 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Text;
+using System.IO;
 
 namespace Configuration.Tests
 {
     [TestClass]
-    public class Test_ConfigFileReaderWriterCallbacks
+    public class Test_ConfigFileReaderWriterCallbacks : TestBase
     {
+        static readonly string cfgContent = "Option0 = Value0\nOption1 = Value1\nSection0:\n    Inner0 = Value2\n    InnerSection0:\n        InnerSub0 = Value3\n";
+
         [TestMethod]
         public void TestReaderCallbacks()
         {
@@ -45,7 +49,7 @@ namespace Configuration.Tests
             Assert.AreEqual(3.1415f, cfg.GetOption("pi"));
             Assert.AreEqual(42, cfg.GetOption("fortyTwo"));
             Assert.AreEqual(666, cfg.GetOption("lastOption"));
-            Assert.AreEqual(2, cfg.Sections.Count);
+            Assert.AreEqual(3, cfg.Sections.Count);
 
             // SECTION0
             Assert.AreEqual(3, cfg["SECTION0"].Options.Count);
@@ -74,6 +78,34 @@ namespace Configuration.Tests
             Assert.AreEqual(string.Format("Option that starts with 1: {0}", 14), cfg["SECTION1"]["SUBSECTION0"].GetOption("e"));
             Assert.AreEqual(string.Format("Option that starts with 1: {0}", 15), cfg["SECTION1"]["SUBSECTION0"].GetOption("f"));
             Assert.AreEqual(0, cfg["SECTION1"]["SUBSECTION0"].Sections.Count);
+
+            // INCLUDEDSECTION
+            Assert.AreEqual(1, cfg["INCLUDEDSECTION"].Options.Count);
+            Assert.AreEqual("value1", cfg["INCLUDEDSECTION"].GetOption("Global0"));
+            Assert.AreEqual(1, cfg["SECTION0"].Sections.Count);
+        }
+
+        [TestMethod]
+        public void TestWriterCallbacks()
+        {
+            ConfigFile.Writer.Callbacks.OptionNameProcessor =
+                optionName => optionName.Trim().ToUpper();
+
+            ConfigFile.Writer.Callbacks.OptionNameProcessor =
+                optionName => optionName.Trim().ToUpper();
+
+            var cfg = ConfigFile.FromString(cfgContent);
+
+            var savedCfgContentBuilder = new StringBuilder();
+            using (var savedCfgStream = new StringWriter(savedCfgContentBuilder))
+            {
+                cfg.SaveToFile(savedCfgStream);
+            }
+
+            string newContent = "OPTION0 = Value0\nOPTION1 = Value1\nSection0:\n    INNER0 = Value2\n    InnerSection0:\n        INNERSUB0 = Value3\n";
+
+            var savedContent = savedCfgContentBuilder.ToString();
+            Assert.AreEqual(newContent, savedContent);
         }
     }
 }

@@ -25,6 +25,11 @@ namespace Configuration
 
         static ConfigFile()
         {
+            ResetStaticState();
+        }
+
+        public static void ResetStaticState()
+        {
             CurrentCulture = CultureInfo.InvariantCulture;
 
             // Create the instances.
@@ -32,14 +37,14 @@ namespace Configuration
             Writer = new ConfigFileWriter();
 
             SyntaxMarkers = new SyntaxMarkers()
-                            {
-                                KeyValueDelimiter = "=",
-                                SectionBodyBeginMarker = ":",
-                                IncludeBeginMarker = "[include]",
-                                SingleLineCommentBeginMarker = "//",
-                                MultiLineCommentBeginMarker = "/*",
-                                MultiLineCommentEndMarker = "*/",
-                            };
+            {
+                KeyValueDelimiter = "=",
+                SectionBodyBeginMarker = ":",
+                IncludeBeginMarker = "[include]",
+                SingleLineCommentBeginMarker = "//",
+                MultiLineCommentBeginMarker = "/*",
+                MultiLineCommentEndMarker = "*/",
+            };
 
             // Assign the necessary properties.
             Reader.Markers = SyntaxMarkers;
