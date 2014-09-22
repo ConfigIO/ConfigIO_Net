@@ -58,6 +58,7 @@
     <Compile Include="Test_ConfigSection.cs" />
     <Compile Include="Test_StringStream.cs" />
     <Compile Include="Test_ConfigFileReaderWriterCallbacks.cs" />
+    <Compile Include="Test_ConfigFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConfigIO\ConfigIO.csproj">
@@ -67,6 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="data\Complete.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\CompleteCompact.cfg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\GlobalOptionAndSection.cfg">

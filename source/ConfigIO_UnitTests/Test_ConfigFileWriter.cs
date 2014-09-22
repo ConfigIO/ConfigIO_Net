@@ -32,21 +32,13 @@ namespace Configuration.Tests
 
             Directory.CreateDirectory("temp");
 
-            try
-            {
+            WriteFileStream(cfg.FileName, FileMode.Create, FileAccess.Write,
+                writer => cfg.SaveTo(writer));
 
-                WriteFileStream(cfg.FileName, FileMode.Create, FileAccess.Write,
-                    writer => cfg.SaveTo(writer));
-
-                var savedContent = string.Empty;
-                ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
-                    reader => savedContent = reader.ReadToEnd());
-                Assert.AreEqual(cfgContent, savedContent);
-            }
-            finally
-            {
-                Directory.Delete("temp", true);
-            }
+            var savedContent = string.Empty;
+            ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
+                reader => savedContent = reader.ReadToEnd());
+            Assert.AreEqual(cfgContent, savedContent);
         }
 
         [TestMethod]
@@ -55,27 +47,18 @@ namespace Configuration.Tests
             var cfg = ConfigFile.FromString(cfgContent);
             cfg.FileName = "temp/Test_ConfigFileWriter.TestAddSectionAndSavingToFile.cfg";
 
-            Directory.CreateDirectory("temp");
+            cfg.AddSection(new ConfigSection() { Name = "Section1" });
+            cfg["Section1"].AddOption(new ConfigOption() { Name = "Inner1", Value = "value with spaces" });
 
-            try
-            {
-                cfg.AddSection(new ConfigSection() { Name = "Section1" });
-                cfg["Section1"].AddOption(new ConfigOption() { Name = "Inner1", Value = "value with spaces" });
+            WriteFileStream(cfg.FileName, FileMode.Create, FileAccess.Write,
+                writer => cfg.SaveTo(writer));
 
-                WriteFileStream(cfg.FileName, FileMode.Create, FileAccess.Write,
-                    writer => cfg.SaveTo(writer));
-
-                // Read the written content.
-                var savedContent = string.Empty;
-                ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
-                    reader => savedContent = reader.ReadToEnd());
-                var newContent = cfgContent + "Section1:\n    Inner1 = value with spaces\n";
-                Assert.AreEqual(newContent, savedContent);
-            }
-            finally
-            {
-                Directory.Delete("temp", true);
-            }
+            // Read the written content.
+            var savedContent = string.Empty;
+            ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
+                reader => savedContent = reader.ReadToEnd());
+            var newContent = cfgContent + "Section1:\n    Inner1 = value with spaces\n";
+            Assert.AreEqual(newContent, savedContent);
         }
     }
 }
