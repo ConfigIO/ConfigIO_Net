@@ -12,7 +12,7 @@ namespace Configuration.Tests
         [TestInitialize]
         public void TestInitialization()
         {
-            ConfigFile.ResetStaticState();
+            ConfigFile.Defaults = new ConfigFileDefaults();
         }
     }
 }

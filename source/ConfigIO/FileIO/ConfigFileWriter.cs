@@ -4,18 +4,16 @@ using System.Text;
 
 namespace Configuration.FileIO
 {
-    public class ConfigFileWriterCallbacks
+    public interface IConfigFileWriter
     {
-        public TextProcessorCallback SectionNameProcessor { get; set; }
-
-        public TextProcessorCallback OptionNameProcessor { get; set; }
-
-        public TextProcessorCallback OptionValueProcessor { get; set; }
-
-        public TextProcessorCallback FileNameProcessor { get; set; }
+        ConfigFileWriterCallbacks Callbacks { get; set; }
+        string IndentationString { get; set; }
+        SyntaxMarkers Markers { get; set; }
+        string NewLine { get; set; }
+        void Write(TextWriter writer, ConfigFile cfg);
     }
 
-    public class ConfigFileWriter
+    public class ConfigFileWriter : Configuration.FileIO.IConfigFileWriter
     {
         public SyntaxMarkers Markers { get; set; }
 

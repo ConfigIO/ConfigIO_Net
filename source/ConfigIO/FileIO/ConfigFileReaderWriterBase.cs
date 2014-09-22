@@ -48,4 +48,26 @@ namespace Configuration.FileIO
         /// </summary>
         public string MultiLineCommentEndMarker { get; set; }
     }
+
+    public class ConfigFileReaderCallbacks
+    {
+        public TextProcessorCallback SectionNameProcessor { get; set; }
+
+        public TextProcessorCallback OptionNameProcessor { get; set; }
+
+        public TextProcessorCallback OptionValueProcessor { get; set; }
+
+        public TextProcessorCallback FileNameProcessor { get; set; }
+    }
+
+    public class ConfigFileWriterCallbacks
+    {
+        public TextProcessorCallback SectionNameProcessor { get; set; }
+
+        public TextProcessorCallback OptionNameProcessor { get; set; }
+
+        public TextProcessorCallback OptionValueProcessor { get; set; }
+
+        public TextProcessorCallback FileNameProcessor { get; set; }
+    }
 }

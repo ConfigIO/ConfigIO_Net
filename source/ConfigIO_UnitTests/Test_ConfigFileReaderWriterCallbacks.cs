@@ -13,7 +13,7 @@ namespace Configuration.Tests
         [TestMethod]
         public void TestReaderCallbacks()
         {
-            ConfigFile.Reader.Callbacks.OptionNameProcessor =
+            ConfigFile.Defaults.Reader.Callbacks.OptionNameProcessor =
                 str =>
                 {
                     var trimmed = str.Trim();
@@ -26,7 +26,7 @@ namespace Configuration.Tests
                     return trimmed;
                 };
 
-            ConfigFile.Reader.Callbacks.OptionValueProcessor =
+            ConfigFile.Defaults.Reader.Callbacks.OptionValueProcessor =
                 str =>
                 {
                     var trimmed = str.Trim();
@@ -39,7 +39,7 @@ namespace Configuration.Tests
                     return trimmed;
                 };
 
-            ConfigFile.Reader.Callbacks.SectionNameProcessor =
+            ConfigFile.Defaults.Reader.Callbacks.SectionNameProcessor =
                 str => str.Trim().ToUpper();
 
             var cfg = ConfigFile.FromFile("data/Complete.cfg");
@@ -88,10 +88,10 @@ namespace Configuration.Tests
         [TestMethod]
         public void TestWriterCallbacks()
         {
-            ConfigFile.Writer.Callbacks.OptionNameProcessor =
+            ConfigFile.Defaults.Writer.Callbacks.OptionNameProcessor =
                 optionName => optionName.Trim().ToUpper();
 
-            ConfigFile.Writer.Callbacks.OptionNameProcessor =
+            ConfigFile.Defaults.Writer.Callbacks.OptionNameProcessor =
                 optionName => optionName.Trim().ToUpper();
 
             var cfg = ConfigFile.FromString(cfgContent);

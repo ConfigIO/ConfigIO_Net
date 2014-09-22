@@ -1,36 +1,25 @@
 ﻿using Configuration.FileIO;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 namespace Configuration
 {
-
-    public enum ConfigFileSaveOptions
+    public class ConfigFileDefaults
     {
+        public CultureInfo Culture { get; set; }
 
-    }
-    
-    public class ConfigFile : ConfigSection
-    {
-        #region Static
+        public IConfigFileWriter Writer { get; set; }
 
-        public static CultureInfo CurrentCulture { get; set; }
+        public SyntaxMarkers SyntaxMarkers { get; set; }
 
-        public static ConfigFileWriter Writer { get; set; }
+        public IConfigFileReader Reader { get; set; }
 
-        public static SyntaxMarkers SyntaxMarkers { get; set; }
-
-        public static ConfigFileReader Reader { get; set; }
-
-        static ConfigFile()
+        public ConfigFileDefaults()
         {
-            ResetStaticState();
-        }
-
-        public static void ResetStaticState()
-        {
-            CurrentCulture = CultureInfo.InvariantCulture;
+            Culture = CultureInfo.InvariantCulture;
 
             // Create the instances.
             Reader = new ConfigFileReader();
@@ -50,30 +39,89 @@ namespace Configuration
             Reader.Markers = SyntaxMarkers;
             Writer.Markers = SyntaxMarkers;
         }
+    }
+    
+    public class ConfigFile : ConfigSection
+    {
+        #region Static
 
-        public static ConfigFile FromFile(string fileName)
-        {
-            var content = string.Empty;
-            using (var fileStream = File.OpenText(fileName))
-            {
-                content = fileStream.ReadToEnd();
-            }
-            var cfg = FromString(content);
-            cfg.FileName = fileName;
-            return cfg;
-        }
+        public static ConfigFileDefaults Defaults { get; set; }
 
         public static ConfigFile FromString(string content)
         {
-            return Reader.Parse(content);
+            var cfg = new ConfigFile();
+            cfg.LoadFromString(content);
+            return cfg;
         }
 
-        #endregion Static
+        public static ConfigFile FromFile(string fileName)
+        {
+            var cfg = new ConfigFile() { FileName = fileName };
+            cfg.LoadFromFile();
+            return cfg;
+        }
+
+        static ConfigFile()
+        {
+            Defaults = new ConfigFileDefaults();
+        }
+
+        #endregion
+
+        public CultureInfo Culture { get; set; }
+
+        public IConfigFileWriter Writer { get; set; }
+
+        public SyntaxMarkers SyntaxMarkers { get; set; }
+
+        public IConfigFileReader Reader { get; set; }
 
         public string FileName { get; set; }
 
-        internal ConfigFile() : base()
+        public ConfigFile() : base()
         {
+            Culture = Defaults.Culture;
+            SyntaxMarkers = Defaults.SyntaxMarkers;
+            Writer = Defaults.Writer;
+            Reader = Defaults.Reader;
+        }
+
+        public void Clear()
+        {
+            Options.Clear();
+            Sections.Clear();
+        }
+
+        public void LoadFromString(string content)
+        {
+            Clear();
+            ConfigFile cfg;
+            using (var reader = new StringReader(content))
+            {
+                cfg = Reader.Parse(reader);
+            }
+
+            Options = cfg.Options;
+            Sections = cfg.Sections;
+        }
+
+        /// <summary>
+        /// Use the property FileName of this class to specify the file name.
+        /// </summary>
+        public void LoadFromFile()
+        {
+            Clear();
+            ConfigFile cfg;
+            using (var fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = new StreamReader(fileStream))
+                {
+                    cfg = Reader.Parse(reader);
+                }
+            }
+
+            Options = cfg.Options;
+            Sections = cfg.Sections;
         }
 
         public void SaveToFile()

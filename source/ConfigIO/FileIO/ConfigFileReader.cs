@@ -1,19 +1,20 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
+
 namespace Configuration.FileIO
 {
-    public class ConfigFileReaderCallbacks
+    public interface IConfigFileReader
     {
-        public TextProcessorCallback SectionNameProcessor { get; set; }
+        ConfigFileReaderCallbacks Callbacks { get; set; }
 
-        public TextProcessorCallback OptionNameProcessor { get; set; }
+        SyntaxMarkers Markers { get; set; }
 
-        public TextProcessorCallback OptionValueProcessor { get; set; }
+        bool NormalizeLineEndings { get; set; }
 
-        public TextProcessorCallback FileNameProcessor { get; set; }
+        ConfigFile Parse(TextReader reader);
     }
 
     public enum ReadStep
@@ -37,8 +38,14 @@ namespace Configuration.FileIO
     ///         Option2 = Value2
     /// </code>
     /// </example>
-    public class ConfigFileReader
+    public class ConfigFileReader : IConfigFileReader
     {
+        public struct SectionInfo
+        {
+            public ConfigSection Section { get; set; }
+            public int Indentation { get; set; }
+        }
+
         /// <summary>
         /// Set of markers to determine syntax.
         /// Should be set by the user creating an instace of this class.
@@ -61,46 +68,47 @@ namespace Configuration.FileIO
             NormalizeLineEndings = true;
         }
 
-        public ConfigFile Parse(string content)
+        public ConfigFile Parse(TextReader reader)
         {
-            if (NormalizeLineEndings)
-            {
-                content = content.Replace("\r", string.Empty);
-            }
-            var stream = new StringStream(content);
-            return Parse(stream);
+            var content = reader.ReadToEnd();
+            return Parse(new StringStream(content));
         }
 
         public ConfigFile Parse(StringStream stream)
         {
-            var cfg = new ConfigFile();
-            var rootSection = ParseSection(stream, -1);
+            if (NormalizeLineEndings)
+            {
+                var normalizedContent = stream.CurrentContent.Replace("\r", string.Empty);
+                stream = new StringStream(normalizedContent);
+            }
 
-            cfg.Options = rootSection.Options;
-            cfg.Sections = rootSection.Sections;
+            var cfg = new ConfigFile();
+            ParseSection(stream, new SectionInfo()
+                                 {
+                                     Section = cfg,
+                                     Indentation = -1,
+                                 });
 
             return cfg;
         }
 
-        private ConfigSection ParseSection(StringStream stream, int referenceIndentation)
+        private void ParseSection(StringStream stream, SectionInfo parent)
         {
-            var section = new ConfigSection();
-
             SkipWhiteSpaceAndComments(stream);
 
-            if (stream.IsAtEndOfStream) { return section; }
+            if (stream.IsAtEndOfStream) { return; }
 
             // Determine the indentation for this section.
             var sectionIndentation = DetermineLineIndentation(stream);
             var currentIndentation = sectionIndentation;
 
-            Debug.Assert(sectionIndentation != referenceIndentation);
+            Debug.Assert(sectionIndentation != parent.Indentation);
 
             while (true)
             {
                 if (stream.IsAtEndOfStream) { break; }
 
-                if (currentIndentation <= referenceIndentation)
+                if (currentIndentation <= parent.Indentation)
                 {
                     // We have something like this:
                     //    | Section0:
@@ -134,9 +142,12 @@ namespace Configuration.FileIO
                         // We are at something like:
                         // [include] SectionName = Path/To/File.cfg
                         var fileName = Callbacks.FileNameProcessor(value);
-                        var cfg = ConfigFile.FromFile(fileName);
-                        cfg.Name = Callbacks.SectionNameProcessor(name.Replace(Markers.IncludeBeginMarker, string.Empty));
-                        section.AddSection(cfg);
+                        var cfg = new ConfigFile() { FileName = fileName };
+                        cfg.LoadFromFile();
+                        // Remove "[include]" from the name
+                        name = name.Replace(Markers.IncludeBeginMarker, string.Empty);
+                        cfg.Name = Callbacks.SectionNameProcessor(name);
+                        parent.Section.AddSection(cfg);
                     }
                     else
                     {
@@ -147,7 +158,7 @@ namespace Configuration.FileIO
                             Name = Callbacks.OptionNameProcessor(name),
                             Value = Callbacks.OptionValueProcessor(value),
                         };
-                        section.AddOption(option);
+                        parent.Section.AddOption(option);
                     }
                 }
                 else if (stream.IsAt(Markers.SectionBodyBeginMarker))
@@ -155,9 +166,14 @@ namespace Configuration.FileIO
                     stream.SkipWhile(_ => stream.IsAt(Markers.SectionBodyBeginMarker));
 
                     // We are at the beginning of a section body
-                    var subSection = ParseSection(stream, sectionIndentation);
+                    var subSection = new ConfigSection();
+                    ParseSection(stream, new SectionInfo()
+                                         {
+                                             Section = subSection,
+                                             Indentation = sectionIndentation
+                                         });
                     subSection.Name = Callbacks.SectionNameProcessor(name);
-                    section.AddSection(subSection);
+                    parent.Section.AddSection(subSection);
                 }
                 else if (stream.IsAt(Markers.SingleLineCommentBeginMarker)
                       || stream.IsAt(Markers.MultiLineCommentBeginMarker))
@@ -168,8 +184,6 @@ namespace Configuration.FileIO
                 SkipWhiteSpaceAndComments(stream);
                 currentIndentation = DetermineLineIndentation(stream);
             }
-
-            return section;
         }
 
         private void ParseComment(StringStream stream)
