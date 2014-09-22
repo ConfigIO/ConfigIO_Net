@@ -71,7 +71,22 @@ namespace Configuration.FileIO
         public ConfigFile Parse(TextReader reader)
         {
             var content = reader.ReadToEnd();
-            return Parse(new StringStream(content));
+
+            if (NormalizeLineEndings)
+            {
+                content = content.Replace("\r", string.Empty);
+            }
+
+            var stream = new StringStream(content);
+
+            var cfg = new ConfigFile();
+            ParseSection(stream, new SectionInfo()
+                                 {
+                                     Section = cfg,
+                                     Indentation = -1,
+                                 });
+
+            return cfg;
         }
 
         public ConfigFile Parse(StringStream stream)
