@@ -13,7 +13,7 @@ namespace Configuration.Tests
         [TestMethod]
         public void TestReaderCallbacks()
         {
-            ConfigFile.Defaults.Reader.Callbacks.OptionNameProcessor =
+            ConfigFile.Defaults.Parser.Callbacks.OptionNameProcessor =
                 str =>
                 {
                     var trimmed = str.Trim();
@@ -26,7 +26,7 @@ namespace Configuration.Tests
                     return trimmed;
                 };
 
-            ConfigFile.Defaults.Reader.Callbacks.OptionValueProcessor =
+            ConfigFile.Defaults.Parser.Callbacks.OptionValueProcessor =
                 str =>
                 {
                     var trimmed = str.Trim();
@@ -39,7 +39,7 @@ namespace Configuration.Tests
                     return trimmed;
                 };
 
-            ConfigFile.Defaults.Reader.Callbacks.SectionNameProcessor =
+            ConfigFile.Defaults.Parser.Callbacks.SectionNameProcessor =
                 str => str.Trim().ToUpper();
 
             var cfg = ConfigFile.FromFile("data/Complete.cfg");
@@ -99,7 +99,7 @@ namespace Configuration.Tests
             var savedCfgContentBuilder = new StringBuilder();
             using (var savedCfgStream = new StringWriter(savedCfgContentBuilder))
             {
-                cfg.SaveToFile(savedCfgStream);
+                cfg.Save(savedCfgStream);
             }
 
             string newContent = "OPTION0 = Value0\nOPTION1 = Value1\nSection0:\n    INNER0 = Value2\n    InnerSection0:\n        INNERSUB0 = Value3\n";

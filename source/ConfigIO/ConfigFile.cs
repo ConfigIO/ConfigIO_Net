@@ -15,28 +15,28 @@ namespace Configuration
 
         public SyntaxMarkers SyntaxMarkers { get; set; }
 
-        public IConfigFileReader Reader { get; set; }
+        public IConfigFileReader Parser { get; set; }
 
         public ConfigFileDefaults()
         {
             Culture = CultureInfo.InvariantCulture;
 
             // Create the instances.
-            Reader = new ConfigFileReader();
+            Parser = new ConfigFileReader();
             Writer = new ConfigFileWriter();
 
             SyntaxMarkers = new SyntaxMarkers()
-            {
-                KeyValueDelimiter = "=",
-                SectionBodyBeginMarker = ":",
-                IncludeBeginMarker = "[include]",
-                SingleLineCommentBeginMarker = "//",
-                MultiLineCommentBeginMarker = "/*",
-                MultiLineCommentEndMarker = "*/",
-            };
+                            {
+                                KeyValueDelimiter = "=",
+                                SectionBodyBeginMarker = ":",
+                                IncludeBeginMarker = "[include]",
+                                SingleLineCommentBeginMarker = "//",
+                                MultiLineCommentBeginMarker = "/*",
+                                MultiLineCommentEndMarker = "*/",
+                            };
 
             // Assign the necessary properties.
-            Reader.Markers = SyntaxMarkers;
+            Parser.Markers = SyntaxMarkers;
             Writer.Markers = SyntaxMarkers;
         }
     }
@@ -50,14 +50,14 @@ namespace Configuration
         public static ConfigFile FromString(string content)
         {
             var cfg = new ConfigFile();
-            cfg.LoadFromString(content);
+            cfg.Load(content);
             return cfg;
         }
 
         public static ConfigFile FromFile(string fileName)
         {
             var cfg = new ConfigFile() { FileName = fileName };
-            cfg.LoadFromFile();
+            cfg.Load();
             return cfg;
         }
 
@@ -68,13 +68,33 @@ namespace Configuration
 
         #endregion
 
-        public CultureInfo Culture { get; set; }
+        private CultureInfo _culture;
+        public CultureInfo Culture 
+        {
+            get { return _culture ?? Defaults.Culture; }
+            set { _culture = value; }
+        }
 
-        public IConfigFileWriter Writer { get; set; }
+        IConfigFileWriter _writer;
+        public IConfigFileWriter Writer
+        {
+            get { return _writer ?? Defaults.Writer; }
+            set { _writer = value; }
+        }
 
-        public SyntaxMarkers SyntaxMarkers { get; set; }
+        SyntaxMarkers _syntaxMarkers;
+        public SyntaxMarkers SyntaxMarkers
+        {
+            get { return _syntaxMarkers ?? Defaults.SyntaxMarkers; }
+            set { _syntaxMarkers = value; }
+        }
 
-        public IConfigFileReader Reader { get; set; }
+        IConfigFileReader _parser;
+        public IConfigFileReader Parser
+        {
+            get { return _parser ?? Defaults.Parser; }
+            set { _parser = value; }
+        }
 
         public string FileName { get; set; }
 
@@ -83,7 +103,7 @@ namespace Configuration
             Culture = Defaults.Culture;
             SyntaxMarkers = Defaults.SyntaxMarkers;
             Writer = Defaults.Writer;
-            Reader = Defaults.Reader;
+            Parser = Defaults.Parser;
         }
 
         public void Clear()
@@ -92,13 +112,13 @@ namespace Configuration
             Sections.Clear();
         }
 
-        public void LoadFromString(string content)
+        public void Load(string content)
         {
             Clear();
             ConfigFile cfg;
             using (var reader = new StringReader(content))
             {
-                cfg = Reader.Parse(reader);
+                cfg = Parser.Parse(reader);
             }
 
             Options = cfg.Options;
@@ -108,7 +128,7 @@ namespace Configuration
         /// <summary>
         /// Use the property FileName of this class to specify the file name.
         /// </summary>
-        public void LoadFromFile()
+        public void Load()
         {
             Clear();
             ConfigFile cfg;
@@ -116,7 +136,7 @@ namespace Configuration
             {
                 using (var reader = new StreamReader(fileStream))
                 {
-                    cfg = Reader.Parse(reader);
+                    cfg = Parser.Parse(reader);
                 }
             }
 
@@ -124,13 +144,13 @@ namespace Configuration
             Sections = cfg.Sections;
         }
 
-        public void SaveToFile()
+        public void Save()
         {
             using (var fileStream = new FileStream(FileName, FileMode.Create))
             {
                 using (var writer = new StreamWriter(fileStream))
                 {
-                    Writer.Write(writer, this);
+                    Save(writer);
                 }
             }
         }
@@ -140,7 +160,7 @@ namespace Configuration
         /// </summary>
         /// <remarks>This method ignores this instance's <code>FileName</code>.</remarks>
         /// <param identifier="writer"></param>
-        public void SaveToFile(TextWriter writer)
+        public void Save(TextWriter writer)
         {
             Writer.Write(writer, this);
         }

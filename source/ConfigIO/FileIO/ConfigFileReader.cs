@@ -143,7 +143,7 @@ namespace Configuration.FileIO
                         // [include] SectionName = Path/To/File.cfg
                         var fileName = Callbacks.FileNameProcessor(value);
                         var cfg = new ConfigFile() { FileName = fileName };
-                        cfg.LoadFromFile();
+                        cfg.Load();
                         // Remove "[include]" from the name
                         name = name.Replace(Markers.IncludeBeginMarker, string.Empty);
                         cfg.Name = Callbacks.SectionNameProcessor(name);

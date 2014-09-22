@@ -17,7 +17,7 @@ namespace Configuration.Tests
             var savedCfgContentBuilder = new StringBuilder();
             using (var savedCfgStream = new StringWriter(savedCfgContentBuilder))
             {
-                cfg.SaveToFile(savedCfgStream);
+                cfg.Save(savedCfgStream);
             }
 
             var savedCfgContent = savedCfgContentBuilder.ToString();
@@ -38,7 +38,7 @@ namespace Configuration.Tests
                 {
                     using (var writer = new StreamWriter(fileStream))
                     {
-                        cfg.SaveToFile(writer);
+                        cfg.Save(writer);
                     }
                 }
 
@@ -74,7 +74,7 @@ namespace Configuration.Tests
                 {
                     using (var writer = new StreamWriter(fileStream))
                     {
-                        cfg.SaveToFile(writer);
+                        cfg.Save(writer);
                     }
                 }
 
