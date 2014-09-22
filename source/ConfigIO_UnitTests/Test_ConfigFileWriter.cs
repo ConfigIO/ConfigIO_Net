@@ -17,7 +17,7 @@ namespace Configuration.Tests
             var savedCfgContentBuilder = new StringBuilder();
             using (var savedCfgStream = new StringWriter(savedCfgContentBuilder))
             {
-                cfg.Save(savedCfgStream);
+                cfg.SaveTo(savedCfgStream);
             }
 
             var savedCfgContent = savedCfgContentBuilder.ToString();
@@ -34,22 +34,14 @@ namespace Configuration.Tests
 
             try
             {
-                using (var fileStream = new FileStream(cfg.FileName, FileMode.Create))
-                {
-                    using (var writer = new StreamWriter(fileStream))
-                    {
-                        cfg.Save(writer);
-                    }
-                }
 
-                using (var fileStream = new FileStream(cfg.FileName, FileMode.Open, FileAccess.Read))
-                {
-                    using (var reader = new StreamReader(fileStream))
-                    {
-                        var savedContent = reader.ReadToEnd();
-                        Assert.AreEqual(cfgContent, savedContent);
-                    }
-                }
+                WriteFileStream(cfg.FileName, FileMode.Create, FileAccess.Write,
+                    writer => cfg.SaveTo(writer));
+
+                var savedContent = string.Empty;
+                ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
+                    reader => savedContent = reader.ReadToEnd());
+                Assert.AreEqual(cfgContent, savedContent);
             }
             finally
             {
@@ -70,23 +62,15 @@ namespace Configuration.Tests
                 cfg.AddSection(new ConfigSection() { Name = "Section1" });
                 cfg["Section1"].AddOption(new ConfigOption() { Name = "Inner1", Value = "value with spaces" });
 
-                using (var fileStream = new FileStream(cfg.FileName, FileMode.Create))
-                {
-                    using (var writer = new StreamWriter(fileStream))
-                    {
-                        cfg.Save(writer);
-                    }
-                }
+                WriteFileStream(cfg.FileName, FileMode.Create, FileAccess.Write,
+                    writer => cfg.SaveTo(writer));
 
-                using (var fileStream = new FileStream(cfg.FileName, FileMode.Open, FileAccess.Read))
-                {
-                    using (var reader = new StreamReader(fileStream))
-                    {
-                        var savedContent = reader.ReadToEnd();
-                        var newContent = cfgContent + "Section1:\n    Inner1 = value with spaces\n";
-                        Assert.AreEqual(newContent, savedContent);
-                    }
-                }
+                // Read the written content.
+                var savedContent = string.Empty;
+                ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
+                    reader => savedContent = reader.ReadToEnd());
+                var newContent = cfgContent + "Section1:\n    Inner1 = value with spaces\n";
+                Assert.AreEqual(newContent, savedContent);
             }
             finally
             {

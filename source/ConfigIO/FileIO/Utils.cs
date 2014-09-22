@@ -1,21 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Configuration.Tests
+namespace Configuration.FileIO
 {
-    public class TestBase
+    internal static class Utils
     {
-        [TestInitialize]
-        public void TestInitialization()
-        {
-            ConfigFile.Defaults = new ConfigFileDefaults();
-        }
-
         public static void ReadFileStream(string fileName, FileMode fileMode, FileAccess fileAccess, Action<StreamReader> action)
         {
             var stream = new FileStream(fileName, fileMode, fileAccess);

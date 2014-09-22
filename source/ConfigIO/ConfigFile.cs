@@ -50,7 +50,7 @@ namespace Configuration
         public static ConfigFile FromString(string content)
         {
             var cfg = new ConfigFile();
-            cfg.Load(content);
+            cfg.LoadFrom(content);
             return cfg;
         }
 
@@ -104,7 +104,7 @@ namespace Configuration
             Sections.Clear();
         }
 
-        public void Load(string content)
+        public void LoadFrom(string content)
         {
             Clear();
             ConfigFile cfg;
@@ -123,14 +123,10 @@ namespace Configuration
         public void Load()
         {
             Clear();
-            ConfigFile cfg;
-            using (var fileStream = new FileStream(FileName, FileMode.Open, FileAccess.Read))
-            {
-                using (var reader = new StreamReader(fileStream))
-                {
-                    cfg = Parser.Parse(reader);
-                }
-            }
+            ConfigFile cfg = null;
+
+            Utils.ReadFileStream(FileName, FileMode.Open, FileAccess.Read,
+                reader => cfg = Parser.Parse(reader));
 
             Options = cfg.Options;
             Sections = cfg.Sections;
@@ -138,13 +134,8 @@ namespace Configuration
 
         public void Save()
         {
-            using (var fileStream = new FileStream(FileName, FileMode.Create))
-            {
-                using (var writer = new StreamWriter(fileStream))
-                {
-                    Save(writer);
-                }
-            }
+            Utils.WriteFileStream(FileName, FileMode.Create, FileAccess.Write,
+                writer => SaveTo(writer));
         }
 
         /// <summary>
@@ -152,7 +143,7 @@ namespace Configuration
         /// </summary>
         /// <remarks>This method ignores this instance's <code>FileName</code>.</remarks>
         /// <param identifier="writer"></param>
-        public void Save(TextWriter writer)
+        public void SaveTo(TextWriter writer)
         {
             Writer.Write(writer, this);
         }

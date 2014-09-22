@@ -99,7 +99,7 @@ namespace Configuration.Tests
             var savedCfgContentBuilder = new StringBuilder();
             using (var savedCfgStream = new StringWriter(savedCfgContentBuilder))
             {
-                cfg.Save(savedCfgStream);
+                cfg.SaveTo(savedCfgStream);
             }
 
             string newContent = "OPTION0 = Value0\nOPTION1 = Value1\nSection0:\n    INNER0 = Value2\n    InnerSection0:\n        INNERSUB0 = Value3\n";
