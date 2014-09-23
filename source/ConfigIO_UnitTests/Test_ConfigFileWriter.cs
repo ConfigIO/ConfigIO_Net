@@ -7,7 +7,7 @@ namespace Configuration.Tests
     [TestClass]
     public class Test_ConfigFileWriter : TestBase
     {
-        static readonly string cfgContent = "Option0 = Value0\nOption1 = Value1\nSection0:\n    Inner0 = Value2\n    InnerSection0:\n        InnerSub0 = Value3\n";
+        static readonly string cfgContent = "Option0 = Value0\nOption1 = Value1\n\nSection0:\n    Inner0 = Value2\n\n    InnerSection0:\n        InnerSub0 = Value3\n";
 
         [TestMethod]
         public void TestSavingToExistingWriter()
@@ -57,7 +57,7 @@ namespace Configuration.Tests
             var savedContent = string.Empty;
             ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
                 reader => savedContent = reader.ReadToEnd());
-            var newContent = cfgContent + "Section1:\n    Inner1 = value with spaces\n";
+            var newContent = cfgContent + "\nSection1:\n    Inner1 = value with spaces\n";
             Assert.AreEqual(newContent, savedContent);
         }
     }
