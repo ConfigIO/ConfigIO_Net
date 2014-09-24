@@ -18,12 +18,16 @@ namespace Configuration.Tests
 
             // Check contents.
             var originalContent = string.Empty;
-            ReadFileStream("data/CompleteCompact.cfg", FileMode.Open, FileAccess.Read,
-                reader => originalContent = reader.ReadToEnd());
+            using (var reader = new FileInfo("data/CompleteCompact.cfg").OpenText())
+            {
+                originalContent = reader.ReadToEnd();
+            }
 
             var savedContent = string.Empty;
-            ReadFileStream("temp/CompleteCompact.cfg", FileMode.Open, FileAccess.Read,
-                reader => savedContent = reader.ReadToEnd());
+            using (var reader = new FileInfo("temp/CompleteCompact.cfg").OpenText())
+            {
+                savedContent = reader.ReadToEnd();
+            }
 
             Assert.AreEqual(originalContent, savedContent);
         }
