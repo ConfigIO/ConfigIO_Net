@@ -28,17 +28,17 @@ namespace Configuration.Tests
         public void TestSavingToFile()
         {
             var cfg = ConfigFile.FromString(cfgContent);
-            cfg.FilePath = "temp/Test_ConfigFileWriter.TestSavingToFile.cfg";
+            cfg.FileName = "temp/Test_ConfigFileWriter.TestSavingToFile.cfg";
 
             Directory.CreateDirectory("temp");
 
-            using (var writer = cfg.File.CreateText())
+            using (var writer = new FileInfo(cfg.FileName).CreateText())
             {
                 cfg.SaveTo(writer);
             }
 
             var savedContent = string.Empty;
-            using (var reader = cfg.File.OpenText())
+            using (var reader = new FileInfo(cfg.FileName).OpenText())
             {
                 savedContent = reader.ReadToEnd();
             }
@@ -50,19 +50,19 @@ namespace Configuration.Tests
         public void TestAddSectionAndSavingToFile()
         {
             var cfg = ConfigFile.FromString(cfgContent);
-            cfg.FilePath = "temp/Test_ConfigFileWriter.TestAddSectionAndSavingToFile.cfg";
+            cfg.FileName = "temp/Test_ConfigFileWriter.TestAddSectionAndSavingToFile.cfg";
 
             cfg.AddSection(new ConfigSection() { Name = "Section1" });
             cfg["Section1"].AddOption(new ConfigOption() { Name = "Inner1", Value = "value with spaces" });
 
-            using (var writer = cfg.File.CreateText())
+            using (var writer = new FileInfo(cfg.FileName).CreateText())
             {
                 cfg.SaveTo(writer);
             }
 
             // Read the written content.
             var savedContent = string.Empty;
-            using (var reader = cfg.File.OpenText())
+            using (var reader = new FileInfo(cfg.FileName).OpenText())
             {
                 savedContent = reader.ReadToEnd();
             }

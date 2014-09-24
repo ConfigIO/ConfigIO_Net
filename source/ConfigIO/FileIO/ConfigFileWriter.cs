@@ -57,7 +57,7 @@ namespace Configuration.FileIO
             var cfg = section as ConfigFile;
             if (cfg != null)
             {
-                if (string.IsNullOrWhiteSpace(cfg.FilePath))
+                if (string.IsNullOrWhiteSpace(cfg.FileName))
                 {
                     throw new InvalidObjectStateException(
                         "The given section is a config file but does not contain a valid file name.");
@@ -67,7 +67,7 @@ namespace Configuration.FileIO
                                            Markers.IncludeBeginMarker,
                                            Callbacks.SectionNameProcessor(section.Name),
                                            Markers.KeyValueDelimiter,
-                                           Callbacks.FileNameProcessor(cfg.FilePath)));
+                                           Callbacks.FileNameProcessor(cfg.FileName)));
                 writer.WriteLine();
                 return;
             }

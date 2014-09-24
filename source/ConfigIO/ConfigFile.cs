@@ -56,7 +56,7 @@ namespace Configuration
 
         public static ConfigFile FromFile(string fileName)
         {
-            var cfg = new ConfigFile() { FilePath = fileName };
+            var cfg = new ConfigFile() { FileName = fileName };
             cfg.Load();
             return cfg;
         }
@@ -96,16 +96,10 @@ namespace Configuration
             set { _parser = value; }
         }
 
-        public FileInfo File { get; set; }
-
         /// <summary>
         /// Convenient access to the underlying FileInfo property.
         /// </summary>
-        public string FilePath
-        {
-            get { return File == null ? null : File.ToString(); }
-            set { File = new FileInfo(value); }
-        }
+        public string FileName { get; set; }
 
         public void Clear()
         {
@@ -134,7 +128,7 @@ namespace Configuration
             Clear();
             ConfigFile cfg = null;
 
-            using (var reader = File.OpenText())
+            using (var reader = new FileInfo(FileName).OpenText())
             {
                 cfg = Parser.Parse(reader);
             }
@@ -145,7 +139,7 @@ namespace Configuration
 
         public void Save()
         {
-            using (var writer = File.CreateText())
+            using (var writer = new FileInfo(FileName).CreateText())
             {
                 SaveTo(writer);
             }

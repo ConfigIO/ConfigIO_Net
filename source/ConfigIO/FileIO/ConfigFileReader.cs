@@ -160,7 +160,7 @@ namespace Configuration.FileIO
                         var cfg = new ConfigFile()
                                   {
                                       Owner = parent.Section.Owner,
-                                      FilePath = fileName,
+                                      FileName = fileName,
                                   };
                         cfg.Load();
                         // Remove "[include]" from the name
