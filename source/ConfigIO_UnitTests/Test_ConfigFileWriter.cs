@@ -28,16 +28,21 @@ namespace Configuration.Tests
         public void TestSavingToFile()
         {
             var cfg = ConfigFile.FromString(cfgContent);
-            cfg.FileName = "temp/Test_ConfigFileWriter.TestSavingToFile.cfg";
+            cfg.FilePath = "temp/Test_ConfigFileWriter.TestSavingToFile.cfg";
 
             Directory.CreateDirectory("temp");
 
-            WriteFileStream(cfg.FileName, FileMode.Create, FileAccess.Write,
-                writer => cfg.SaveTo(writer));
+            using (var writer = cfg.File.CreateText())
+            {
+                cfg.SaveTo(writer);
+            }
 
             var savedContent = string.Empty;
-            ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
-                reader => savedContent = reader.ReadToEnd());
+            using (var reader = cfg.File.OpenText())
+            {
+                savedContent = reader.ReadToEnd();
+            }
+
             Assert.AreEqual(cfgContent, savedContent);
         }
 
@@ -45,18 +50,22 @@ namespace Configuration.Tests
         public void TestAddSectionAndSavingToFile()
         {
             var cfg = ConfigFile.FromString(cfgContent);
-            cfg.FileName = "temp/Test_ConfigFileWriter.TestAddSectionAndSavingToFile.cfg";
+            cfg.FilePath = "temp/Test_ConfigFileWriter.TestAddSectionAndSavingToFile.cfg";
 
             cfg.AddSection(new ConfigSection() { Name = "Section1" });
             cfg["Section1"].AddOption(new ConfigOption() { Name = "Inner1", Value = "value with spaces" });
 
-            WriteFileStream(cfg.FileName, FileMode.Create, FileAccess.Write,
-                writer => cfg.SaveTo(writer));
+            using (var writer = cfg.File.CreateText())
+            {
+                cfg.SaveTo(writer);
+            }
 
             // Read the written content.
             var savedContent = string.Empty;
-            ReadFileStream(cfg.FileName, FileMode.Open, FileAccess.Read,
-                reader => savedContent = reader.ReadToEnd());
+            using (var reader = cfg.File.OpenText())
+            {
+                savedContent = reader.ReadToEnd();
+            }
             var newContent = cfgContent + "\nSection1:\n    Inner1 = value with spaces\n";
             Assert.AreEqual(newContent, savedContent);
         }

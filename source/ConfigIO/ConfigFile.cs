@@ -56,7 +56,7 @@ namespace Configuration
 
         public static ConfigFile FromFile(string fileName)
         {
-            var cfg = new ConfigFile() { FileName = fileName };
+            var cfg = new ConfigFile() { FilePath = fileName };
             cfg.Load();
             return cfg;
         }
@@ -96,7 +96,16 @@ namespace Configuration
             set { _parser = value; }
         }
 
-        public string FileName { get; set; }
+        public FileInfo File { get; set; }
+
+        /// <summary>
+        /// Convenient access to the underlying FileInfo property.
+        /// </summary>
+        public string FilePath
+        {
+            get { return File == null ? null : File.ToString(); }
+            set { File = new FileInfo(value); }
+        }
 
         public void Clear()
         {
@@ -118,15 +127,17 @@ namespace Configuration
         }
 
         /// <summary>
-        /// Use the property FileName of this class to specify the file name.
+        /// Use the property FileInfo of this class to specify the file name.
         /// </summary>
         public void Load()
         {
             Clear();
             ConfigFile cfg = null;
 
-            Utils.ReadFileStream(FileName, FileMode.Open, FileAccess.Read,
-                reader => cfg = Parser.Parse(reader));
+            using (var reader = File.OpenText())
+            {
+                cfg = Parser.Parse(reader);
+            }
 
             Options = cfg.Options;
             Sections = cfg.Sections;
@@ -134,14 +145,16 @@ namespace Configuration
 
         public void Save()
         {
-            Utils.WriteFileStream(FileName, FileMode.Create, FileAccess.Write,
-                writer => SaveTo(writer));
+            using (var writer = File.CreateText())
+            {
+                SaveTo(writer);
+            }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <remarks>This method ignores this instance's <code>FileName</code>.</remarks>
+        /// <remarks>This method ignores this instance's <code>FileInfo</code>.</remarks>
         /// <param identifier="writer"></param>
         public void SaveTo(TextWriter writer)
         {

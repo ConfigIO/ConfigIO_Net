@@ -10,10 +10,10 @@ namespace Configuration.Tests
         [TestMethod]
         public void TestSavingAndLoading()
         {
-            var cfg = new ConfigFile() { FileName = "data/CompleteCompact.cfg" };
+            var cfg = new ConfigFile() { FilePath = "data/CompleteCompact.cfg" };
 
             cfg.Load();
-            cfg.FileName = "temp/CompleteCompact.cfg";
+            cfg.FilePath = "temp/CompleteCompact.cfg";
             cfg.Save();
 
             // Check contents.
