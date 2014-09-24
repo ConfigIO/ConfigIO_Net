@@ -91,8 +91,8 @@ namespace Configuration.Tests
             ConfigFile.Defaults.Writer.Callbacks.OptionNameProcessor =
                 optionName => optionName.Trim().ToUpper();
 
-            ConfigFile.Defaults.Writer.Callbacks.OptionNameProcessor =
-                optionName => optionName.Trim().ToUpper();
+            ConfigFile.Defaults.Writer.Callbacks.OptionValueProcessor =
+                optionName => optionName.Trim().ToLower();
 
             var cfg = ConfigFile.FromString(cfgContent);
 
@@ -102,7 +102,7 @@ namespace Configuration.Tests
                 cfg.SaveTo(savedCfgStream);
             }
 
-            string newContent = "OPTION0 = Value0\nOPTION1 = Value1\n\nSection0:\n    INNER0 = Value2\n\n    InnerSection0:\n        INNERSUB0 = Value3\n";
+            string newContent = "OPTION0 = value0\nOPTION1 = value1\n\nSection0:\n    INNER0 = value2\n\n    InnerSection0:\n        INNERSUB0 = value3\n";
 
             var savedContent = savedCfgContentBuilder.ToString();
             Assert.AreEqual(newContent, savedContent);
