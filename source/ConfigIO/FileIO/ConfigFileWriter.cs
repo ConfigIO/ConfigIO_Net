@@ -13,7 +13,7 @@ namespace Configuration.FileIO
         void Write(TextWriter writer, ConfigFile cfg);
     }
 
-    public class ConfigFileWriter : Configuration.FileIO.IConfigFileWriter
+    public class ConfigFileWriter : IConfigFileWriter
     {
         public SyntaxMarkers Markers { get; set; }
 
