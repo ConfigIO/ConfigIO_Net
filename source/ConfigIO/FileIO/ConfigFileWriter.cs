@@ -94,17 +94,27 @@ namespace Configuration.FileIO
 
         private void WriteOption(TextWriter writer, ConfigOption option)
         {
-            if (option.Value == string.Empty)
+            writer.Write(Callbacks.OptionNameProcessor(option.Name));
+
+            if (option.Value != string.Empty)
             {
-                writer.WriteLine(Callbacks.OptionNameProcessor(option.Name));
+                writer.Write(" {0} ", Markers.KeyValueDelimiter);
+                var value = Callbacks.OptionValueProcessor(option.Value);
+                var isLongValue = value.Contains(writer.NewLine);
+
+                if (isLongValue)
+                {
+                    writer.Write(Markers.LongValueBeginMarker);
+                    writer.Write(value);
+                    writer.Write(Markers.LongValueEndMarker);
+                }
+                else
+                {
+                    writer.Write(value);
+                }
             }
-            else
-            {
-                writer.WriteLine(string.Format("{0} {1} {2}",
-                                               Callbacks.OptionNameProcessor(option.Name),
-                                               Markers.KeyValueDelimiter,
-                                               Callbacks.OptionValueProcessor(option.Value)));
-            }
+
+            writer.WriteLine();
         }
 
         private void Indent(TextWriter writer, int indentationLevel)
