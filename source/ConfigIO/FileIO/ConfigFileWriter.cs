@@ -4,18 +4,16 @@ using System.Text;
 
 namespace Configuration.FileIO
 {
-    public class ConfigFileWriterCallbacks
+    public interface IConfigFileWriter
     {
-        public TextProcessorCallback SectionNameProcessor { get; set; }
-
-        public TextProcessorCallback OptionNameProcessor { get; set; }
-
-        public TextProcessorCallback OptionValueProcessor { get; set; }
-
-        public TextProcessorCallback FileNameProcessor { get; set; }
+        ConfigFileWriterCallbacks Callbacks { get; set; }
+        string IndentationString { get; set; }
+        SyntaxMarkers Markers { get; set; }
+        string NewLine { get; set; }
+        void Write(TextWriter writer, ConfigFile cfg);
     }
 
-    public class ConfigFileWriter
+    public class ConfigFileWriter : Configuration.FileIO.IConfigFileWriter
     {
         public SyntaxMarkers Markers { get; set; }
 
@@ -40,8 +38,12 @@ namespace Configuration.FileIO
 
         public void Write(TextWriter writer, ConfigFile cfg)
         {
+            var previousNewLine = writer.NewLine;
+
             writer.NewLine = NewLine;
             WriteSectionBody(writer, cfg, indentationLevel: 0);
+
+            writer.NewLine = previousNewLine;
         }
 
         private void WriteSection(TextWriter writer, ConfigSection section, int indentationLevel)
@@ -66,6 +68,8 @@ namespace Configuration.FileIO
                                            Callbacks.SectionNameProcessor(section.Name),
                                            Markers.KeyValueDelimiter,
                                            Callbacks.FileNameProcessor(cfg.FileName)));
+                writer.WriteLine();
+                return;
             }
 
             writer.WriteLine("{0}{1}", Callbacks.SectionNameProcessor(section.Name), Markers.SectionBodyBeginMarker); // "SectionName:\n"
@@ -82,6 +86,7 @@ namespace Configuration.FileIO
 
             foreach (var subSection in section.Sections)
             {
+                writer.WriteLine();
                 Indent(writer, indentationLevel);
                 WriteSection(writer, subSection, indentationLevel + 1);
             }

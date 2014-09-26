@@ -18,6 +18,7 @@ namespace Configuration
         public InvalidFileNameException(string message) : base(message) { }
     }
 
+    [Serializable]
     public class InvalidObjectStateException : Exception
     {
         public InvalidObjectStateException() : base() {}
@@ -25,6 +26,7 @@ namespace Configuration
         public InvalidObjectStateException(string message) : base(message) {}
     }
 
+    [Serializable]
     public class InvalidIndentationException : InvalidSyntaxException
     {
         public InvalidIndentationException(int actual, int expected) :

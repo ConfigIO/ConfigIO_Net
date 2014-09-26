@@ -13,7 +13,7 @@ namespace Configuration.Tests
         [TestMethod]
         public void TestReaderCallbacks()
         {
-            ConfigFile.Reader.Callbacks.OptionNameProcessor =
+            ConfigFile.Defaults.Parser.Callbacks.OptionNameProcessor =
                 str =>
                 {
                     var trimmed = str.Trim();
@@ -26,7 +26,7 @@ namespace Configuration.Tests
                     return trimmed;
                 };
 
-            ConfigFile.Reader.Callbacks.OptionValueProcessor =
+            ConfigFile.Defaults.Parser.Callbacks.OptionValueProcessor =
                 str =>
                 {
                     var trimmed = str.Trim();
@@ -39,7 +39,7 @@ namespace Configuration.Tests
                     return trimmed;
                 };
 
-            ConfigFile.Reader.Callbacks.SectionNameProcessor =
+            ConfigFile.Defaults.Parser.Callbacks.SectionNameProcessor =
                 str => str.Trim().ToUpper();
 
             var cfg = ConfigFile.FromFile("data/Complete.cfg");
@@ -89,21 +89,21 @@ namespace Configuration.Tests
         [TestMethod]
         public void TestWriterCallbacks()
         {
-            ConfigFile.Writer.Callbacks.OptionNameProcessor =
+            ConfigFile.Defaults.Writer.Callbacks.OptionNameProcessor =
                 optionName => optionName.Trim().ToUpper();
 
-            ConfigFile.Writer.Callbacks.OptionNameProcessor =
-                optionName => optionName.Trim().ToUpper();
+            ConfigFile.Defaults.Writer.Callbacks.OptionValueProcessor =
+                optionName => optionName.Trim().ToLower();
 
             var cfg = ConfigFile.FromString(cfgContent);
 
             var savedCfgContentBuilder = new StringBuilder();
             using (var savedCfgStream = new StringWriter(savedCfgContentBuilder))
             {
-                cfg.SaveToFile(savedCfgStream);
+                cfg.SaveTo(savedCfgStream);
             }
 
-            string newContent = "OPTION0 = Value0\nOPTION1 = Value1\nSection0:\n    INNER0 = Value2\n    InnerSection0:\n        INNERSUB0 = Value3\n";
+            string newContent = "OPTION0 = value0\nOPTION1 = value1\n\nSection0:\n    INNER0 = value2\n\n    InnerSection0:\n        INNERSUB0 = value3\n";
 
             var savedContent = savedCfgContentBuilder.ToString();
             Assert.AreEqual(newContent, savedContent);

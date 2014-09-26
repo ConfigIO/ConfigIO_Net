@@ -7,7 +7,7 @@ namespace Configuration.Tests
     [TestClass]
     public class Test_ConfigFileWriter : TestBase
     {
-        static readonly string cfgContent = "Option0 = Value0\nOption1 = Value1\nSection0:\n    Inner0 = Value2\n    InnerSection0:\n        InnerSub0 = Value3\n";
+        static readonly string cfgContent = "Option0 = Value0\nOption1 = Value1\n\nSection0:\n    Inner0 = Value2\n\n    InnerSection0:\n        InnerSub0 = Value3\n";
 
         [TestMethod]
         public void TestSavingToExistingWriter()
@@ -17,7 +17,7 @@ namespace Configuration.Tests
             var savedCfgContentBuilder = new StringBuilder();
             using (var savedCfgStream = new StringWriter(savedCfgContentBuilder))
             {
-                cfg.SaveToFile(savedCfgStream);
+                cfg.SaveTo(savedCfgStream);
             }
 
             var savedCfgContent = savedCfgContentBuilder.ToString();
@@ -32,29 +32,18 @@ namespace Configuration.Tests
 
             Directory.CreateDirectory("temp");
 
-            try
+            using (var writer = new FileInfo(cfg.FileName).CreateText())
             {
-                using (var fileStream = new FileStream(cfg.FileName, FileMode.Create))
-                {
-                    using (var writer = new StreamWriter(fileStream))
-                    {
-                        cfg.SaveToFile(writer);
-                    }
-                }
+                cfg.SaveTo(writer);
+            }
 
-                using (var fileStream = new FileStream(cfg.FileName, FileMode.Open, FileAccess.Read))
-                {
-                    using (var reader = new StreamReader(fileStream))
-                    {
-                        var savedContent = reader.ReadToEnd();
-                        Assert.AreEqual(cfgContent, savedContent);
-                    }
-                }
-            }
-            finally
+            var savedContent = string.Empty;
+            using (var reader = new FileInfo(cfg.FileName).OpenText())
             {
-                Directory.Delete("temp", true);
+                savedContent = reader.ReadToEnd();
             }
+
+            Assert.AreEqual(cfgContent, savedContent);
         }
 
         [TestMethod]
@@ -63,35 +52,22 @@ namespace Configuration.Tests
             var cfg = ConfigFile.FromString(cfgContent);
             cfg.FileName = "temp/Test_ConfigFileWriter.TestAddSectionAndSavingToFile.cfg";
 
-            Directory.CreateDirectory("temp");
+            cfg.AddSection(new ConfigSection() { Name = "Section1" });
+            cfg["Section1"].AddOption(new ConfigOption() { Name = "Inner1", Value = "value with spaces" });
 
-            try
+            using (var writer = new FileInfo(cfg.FileName).CreateText())
             {
-                cfg.AddSection(new ConfigSection() { Name = "Section1" });
-                cfg["Section1"].AddOption(new ConfigOption() { Name = "Inner1", Value = "value with spaces" });
-
-                using (var fileStream = new FileStream(cfg.FileName, FileMode.Create))
-                {
-                    using (var writer = new StreamWriter(fileStream))
-                    {
-                        cfg.SaveToFile(writer);
-                    }
-                }
-
-                using (var fileStream = new FileStream(cfg.FileName, FileMode.Open, FileAccess.Read))
-                {
-                    using (var reader = new StreamReader(fileStream))
-                    {
-                        var savedContent = reader.ReadToEnd();
-                        var newContent = cfgContent + "Section1:\n    Inner1 = value with spaces\n";
-                        Assert.AreEqual(newContent, savedContent);
-                    }
-                }
+                cfg.SaveTo(writer);
             }
-            finally
+
+            // Read the written content.
+            var savedContent = string.Empty;
+            using (var reader = new FileInfo(cfg.FileName).OpenText())
             {
-                Directory.Delete("temp", true);
+                savedContent = reader.ReadToEnd();
             }
+            var newContent = cfgContent + "\nSection1:\n    Inner1 = value with spaces\n";
+            Assert.AreEqual(newContent, savedContent);
         }
     }
 }
