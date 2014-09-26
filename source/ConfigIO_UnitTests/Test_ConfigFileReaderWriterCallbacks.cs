@@ -45,8 +45,9 @@ namespace Configuration.Tests
             var cfg = ConfigFile.FromFile("data/Complete.cfg");
 
             // Global
-            Assert.AreEqual(3, cfg.Options.Count);
+            Assert.AreEqual(4, cfg.Options.Count);
             Assert.AreEqual(3.1415f, cfg.GetOption("pi"));
+            Assert.AreEqual(string.Empty, cfg.GetOption("optionWithoutValue"));
             Assert.AreEqual(42, cfg.GetOption("fortyTwo"));
             Assert.AreEqual(666, cfg.GetOption("lastOption"));
             Assert.AreEqual(3, cfg.Sections.Count);

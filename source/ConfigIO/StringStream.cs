@@ -24,6 +24,8 @@ namespace Configuration
 
         public int Index { get; set; }
 
+        public string NewLine { get; set; }
+
         public bool IsAtEndOfStream
         {
             get { return Index >= Content.Length; }
@@ -51,7 +53,7 @@ namespace Configuration
 
         public bool IsAtNewLine
         {
-            get { return IsInvalid ? false : PeekUnchecked() == '\n'; }
+            get { return IsInvalid ? false : IsAt(NewLine); }
         }
 
         public char Current
@@ -66,12 +68,14 @@ namespace Configuration
         {
             Index = 0;
             Content = content;
+            NewLine = "\n";
         }
 
         public StringStream(StringStream other)
         {
             Index = other.Index;
             Content = other.Content;
+            NewLine = other.NewLine;
             _currentLineNumber = other._currentLineNumber;
         }
 
@@ -89,14 +93,44 @@ namespace Configuration
             return Content[Index];
         }
 
-        public void Next(int relativeIndex = 1)
+        public void Next(int relativeAmount = 1)
         {
-            if (Current == '\n')
-            {
-                _currentLineNumber += Math.Sign(relativeIndex);
-            }
+            var absoluteAmount = (uint)Math.Abs(relativeAmount);
 
-            Index += relativeIndex;
+            if (relativeAmount > 0)
+            {
+                Forward(absoluteAmount);
+            }
+            else if(relativeAmount < 0)
+            {
+                Backward(absoluteAmount);
+            }
+        }
+
+        private void Forward(uint amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                if (Current == '\n')
+                {
+                    _currentLineNumber++;
+                }
+
+                Index++;
+            }
+        }
+
+        private void Backward(uint amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                if (Current == '\n')
+                {
+                    _currentLineNumber--;
+                }
+
+                Index--;
+            }
         }
 
         public char Read()

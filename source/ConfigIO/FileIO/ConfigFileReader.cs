@@ -123,7 +123,11 @@ namespace Configuration.FileIO
 
                 if (stream.IsAt(Markers.KeyValueDelimiter))
                 {
-                    stream.SkipWhile(_ => stream.IsAt(Markers.KeyValueDelimiter));
+                    // We are at:
+                    // Option = Value
+                    // -------^
+
+                    stream.Next(Markers.KeyValueDelimiter.Length);
                     CheckStream(stream, ReadStep.ReadOptionValue);
 
                     // We are at the value of an option.
@@ -133,6 +137,7 @@ namespace Configuration.FileIO
                     {
                         // We are at something like:
                         // [include] SectionName = Path/To/File.cfg
+                        // ----------------------------------------^
                         var fileName = Callbacks.FileNameProcessor(value);
                         var cfg = ConfigFile.FromFile(fileName);
                         cfg.Name = Callbacks.SectionNameProcessor(name.Replace(Markers.IncludeBeginMarker, string.Empty));
@@ -142,6 +147,7 @@ namespace Configuration.FileIO
                     {
                         // We are at something like:
                         // Option = Value
+                        // --------------^
                         var option = new ConfigOption()
                         {
                             Name = Callbacks.OptionNameProcessor(name),
@@ -152,17 +158,26 @@ namespace Configuration.FileIO
                 }
                 else if (stream.IsAt(Markers.SectionBodyBeginMarker))
                 {
-                    stream.SkipWhile(_ => stream.IsAt(Markers.SectionBodyBeginMarker));
+                    // We are at:
+                    // SectionName:
+                    // -----------^
+
+                    stream.Next(Markers.SectionBodyBeginMarker.Length);
 
                     // We are at the beginning of a section body
                     var subSection = ParseSection(stream, sectionIndentation);
                     subSection.Name = Callbacks.SectionNameProcessor(name);
                     section.AddSection(subSection);
                 }
-                else if (stream.IsAt(Markers.SingleLineCommentBeginMarker)
-                      || stream.IsAt(Markers.MultiLineCommentBeginMarker))
+                else
                 {
-                    ParseComment(stream);
+                    // Now we must be at an option that has no value.
+                    var option = new ConfigOption()
+                    {
+                        Name = Callbacks.OptionNameProcessor(name),
+                        Value = Callbacks.OptionValueProcessor(string.Empty),
+                    };
+                    section.AddOption(option);
                 }
 
                 SkipWhiteSpaceAndComments(stream);
@@ -179,12 +194,13 @@ namespace Configuration.FileIO
             if (stream.IsAt(Markers.SingleLineCommentBeginMarker))
             {
                 stream.SkipUntil(_ => stream.IsAtNewLine);
-                stream.SkipWhile(_ => stream.IsAtNewLine);
+                stream.Next(stream.NewLine.Length);
+                
             }
             else if (stream.IsAt(Markers.MultiLineCommentBeginMarker))
             {
                 stream.SkipUntil(_ => stream.IsAt(Markers.MultiLineCommentEndMarker));
-                stream.SkipWhile(_ => stream.IsAt(Markers.MultiLineCommentEndMarker));
+                stream.Next(Markers.MultiLineCommentEndMarker.Length);
             }
             else
             {
@@ -228,7 +244,7 @@ namespace Configuration.FileIO
             copy.SkipReverseUntil(_ => copy.IsAtBeginning || copy.IsAtNewLine);
 
             // Skip ahead until we are no longer at the new line character
-            copy.SkipWhile(_ => copy.IsAtNewLine);
+            copy.Next(copy.NewLine.Length);
 
             // Now skip all white space and return how much was skipped.
             return copy.SkipWhile(c => char.IsWhiteSpace(c));
