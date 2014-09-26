@@ -10,6 +10,33 @@ namespace Configuration.Tests
         static readonly string cfgContent = "Option0 = Value0\nOption1 = Value1\n\nSection0:\n    Inner0 = Value2\n\n    InnerSection0:\n        InnerSub0 = Value3\n";
 
         [TestMethod]
+        public void TestSavingComplete()
+        {
+            var cfg = new ConfigFile() { FileName = "data/CompleteCompact.cfg" };
+            var completeFile = new FileInfo(cfg.FileName);
+
+            cfg.Load();
+            cfg.FileName = "temp/Test_ConfigFileWriter.TestSavingComplete.cfg";
+            cfg.Save();
+
+            var savedFile = new FileInfo(cfg.FileName);
+
+            string completeContent;
+            using (var reader = completeFile.OpenText())
+            {
+                completeContent = reader.ReadToEnd();
+            }
+
+            string savedContent;
+            using (var reader = savedFile.OpenText())
+            {
+                savedContent = reader.ReadToEnd();
+            }
+
+            Assert.AreEqual(completeContent, savedContent);
+        }
+
+        [TestMethod]
         public void TestSavingToExistingWriter()
         {
             var cfg = ConfigFile.FromString(cfgContent);
