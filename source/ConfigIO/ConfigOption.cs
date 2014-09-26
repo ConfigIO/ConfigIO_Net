@@ -1,174 +1,125 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Configuration
 {
     public class ConfigOption
     {
+        public ConfigFile Owner { get; set; }
 
-
-        public string Comment { get; set; }
+        public string Name { get; set; }
 
         public string Value { get; set; }
-        
-        /// <summary>
-        /// Use the static named constructors Create([...]) to create an instance.
-        /// </summary>
-        private ConfigOption()
+
+        #region Constructors
+
+        public ConfigOption()
         {
+            Name = string.Empty;
             Value = string.Empty;
         }
 
+        public ConfigOption(string name)
+        {
+            Name = name;
+            Value = string.Empty;
+        }
+
+        public ConfigOption(string name, string value)
+        {
+            Name = name;
+            Value = value;
+        }
+        public ConfigOption(string name, bool value)
+        {
+            Name = name;
+            Value = value.ToString();
+        }
+        public ConfigOption(string name, byte value)
+        {
+            Name = name;
+            Value = value.ToString(Owner != null ? Owner.Culture : ConfigFile.Defaults.Culture);
+        }
+        public ConfigOption(string name, char value)
+        {
+            Name = name;
+            Value = value.ToString(Owner != null ? Owner.Culture : ConfigFile.Defaults.Culture);
+        }
+        public ConfigOption(string name, short value)
+        {
+            Name = name;
+            Value = value.ToString(Owner != null ? Owner.Culture : ConfigFile.Defaults.Culture);
+        }
+        public ConfigOption(string name, int value)
+        {
+            Name = name;
+            Value = value.ToString(Owner != null ? Owner.Culture : ConfigFile.Defaults.Culture);
+        }
+        public ConfigOption(string name, long value)
+        {
+            Name = name;
+            Value = value.ToString(Owner != null ? Owner.Culture : ConfigFile.Defaults.Culture);
+        }
+        public ConfigOption(string name, float value)
+        {
+            Name = name;
+            Value = value.ToString(Owner != null ? Owner.Culture : ConfigFile.Defaults.Culture);
+        }
+        public ConfigOption(string name, double value)
+        {
+            Name = name;
+            Value = value.ToString(Owner != null ? Owner.Culture : ConfigFile.Defaults.Culture);
+        }
+
+        #endregion Constructors
+
         public override string ToString()
         {
-            return Value;
+            var syntaxMarkers = Owner != null ? Owner.SyntaxMarkers : ConfigFile.Defaults.SyntaxMarkers;
+            return string.Format("{0} {1} {2}",
+                Name, syntaxMarkers.KeyValueDelimiter, Value);
         }
-
-        #region Static Create Functions
-
-        public static ConfigOption Create()
-        {
-            return new ConfigOption();
-        }
-
-        public static ConfigOption Create(byte value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(char value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(short value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(int value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(long value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(float value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(double value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-        public static ConfigOption Create(string value)
-        {
-            var instance = new ConfigOption();
-            instance = value;
-            return instance;
-        }
-
-        #endregion
-
-        #region Implicit conversion operators to ConfigOption
-
-        public static implicit operator ConfigOption(byte value)
-        {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
-        }
-        public static implicit operator ConfigOption(char value)
-        {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
-        }
-        public static implicit operator ConfigOption(short value)
-        {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
-        }
-        public static implicit operator ConfigOption(int value)
-        {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
-        }
-        public static implicit operator ConfigOption(long value)
-        {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
-        }
-        public static implicit operator ConfigOption(float value)
-        {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
-        }
-        public static implicit operator ConfigOption(double value)
-        {
-            var option = new ConfigOption();
-            option.Value = value.ToString(CultureInfo.InvariantCulture);
-            return option;
-        }
-        public static implicit operator ConfigOption(string value)
-        {
-            var option = new ConfigOption();
-            option.Value = value;
-            return option;
-        }
-
-        #endregion
 
         #region Implicit conversion operators to other types
 
+        public static implicit operator bool(ConfigOption option)
+        {
+            return bool.Parse(option.Value);
+        }
+
         public static implicit operator byte(ConfigOption option)
         {
-            return byte.Parse(option.Value, CultureInfo.InvariantCulture);
+            return byte.Parse(option.Value, option.Owner != null ? option.Owner.Culture : ConfigFile.Defaults.Culture);
         }
+
         public static implicit operator char(ConfigOption option)
         {
             return char.Parse(option.Value);
         }
+
         public static implicit operator short(ConfigOption option)
         {
-            return short.Parse(option.Value, CultureInfo.InvariantCulture);
+            return short.Parse(option.Value, option.Owner != null ? option.Owner.Culture : ConfigFile.Defaults.Culture);
         }
+
         public static implicit operator int(ConfigOption option)
         {
-            return int.Parse(option.Value, CultureInfo.InvariantCulture);
+            return int.Parse(option.Value, option.Owner != null ? option.Owner.Culture : ConfigFile.Defaults.Culture);
         }
+
         public static implicit operator long(ConfigOption option)
         {
-            return long.Parse(option.Value, CultureInfo.InvariantCulture);
+            return long.Parse(option.Value, option.Owner != null ? option.Owner.Culture : ConfigFile.Defaults.Culture);
         }
+
         public static implicit operator float(ConfigOption option)
         {
-            return float.Parse(option.Value, CultureInfo.InvariantCulture);
+            return float.Parse(option.Value, option.Owner != null ? option.Owner.Culture : ConfigFile.Defaults.Culture);
         }
+
         public static implicit operator double(ConfigOption option)
         {
-            return double.Parse(option.Value, CultureInfo.InvariantCulture);
+            return double.Parse(option.Value, option.Owner != null ? option.Owner.Culture : ConfigFile.Defaults.Culture);
         }
+
         public static implicit operator string(ConfigOption option)
         {
             return option.Value;
