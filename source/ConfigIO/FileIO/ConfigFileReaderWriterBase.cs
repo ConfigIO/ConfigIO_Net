@@ -29,6 +29,20 @@ namespace Configuration.FileIO
         public string IncludeBeginMarker { get; set; }
 
         /// <summary>
+        /// Option = { This is a long value
+        ///            that may span multiple lines. }
+        /// ---------^
+        /// </summary>
+        public string LongValueBeginMarker { get; set; }
+
+        /// <summary>
+        /// Option = { This is a long value
+        ///            that may span multiple lines. }
+        /// -----------------------------------------^
+        /// </summary>
+        public string LongValueEndMarker { get; set; }
+
+        /// <summary>
         ///     // This is a comment.
         /// ----^^
         /// </summary>

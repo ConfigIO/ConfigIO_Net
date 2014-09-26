@@ -13,39 +13,40 @@ namespace Configuration.Tests
             var cfg = ConfigFile.FromFile("data/Complete.cfg");
 
             // Global
-            Assert.AreEqual(4, cfg.Options.Count);
-            Assert.AreEqual<float>(3.1415f, cfg.GetOption("pi"));
-            Assert.AreEqual<int>(42, cfg.GetOption("fortyTwo"));
-            Assert.AreEqual<int>(666, cfg.GetOption("lastOption"));
+            Assert.AreEqual(5, cfg.Options.Count);
+            Assert.AreEqual(3.1415f, cfg.GetOption("pi"));
+            Assert.AreEqual(42, cfg.GetOption("fortyTwo"));
+            Assert.AreEqual("This is a long value\n             that spans multiple lines.", cfg.GetOption("longValue"));
+            Assert.AreEqual(666, cfg.GetOption("lastOption"));
             Assert.AreEqual(string.Empty, cfg.GetOption("optionWithoutValue"));
             Assert.AreEqual(3, cfg.Sections.Count);
 
             // Section0
             Assert.AreEqual(3, cfg["Section0"].Options.Count);
-            Assert.AreEqual<int>(0, cfg["Section0"].GetOption("a"));
-            Assert.AreEqual<int>(1, cfg["Section0"].GetOption("b"));
-            Assert.AreEqual<int>(2, cfg["Section0"].GetOption("c"));
+            Assert.AreEqual(0, cfg["Section0"].GetOption("a"));
+            Assert.AreEqual(1, cfg["Section0"].GetOption("b"));
+            Assert.AreEqual(2, cfg["Section0"].GetOption("c"));
             Assert.AreEqual(1, cfg["Section0"].Sections.Count);
 
             // Section0/SubSection0
             Assert.AreEqual(3, cfg["Section0"]["SubSection0"].Options.Count);
-            Assert.AreEqual<int>(3, cfg["Section0"]["SubSection0"].GetOption("d"));
-            Assert.AreEqual<int>(4, cfg["Section0"]["SubSection0"].GetOption("e"));
-            Assert.AreEqual<int>(5, cfg["Section0"]["SubSection0"].GetOption("f"));
+            Assert.AreEqual(3, cfg["Section0"]["SubSection0"].GetOption("d"));
+            Assert.AreEqual(4, cfg["Section0"]["SubSection0"].GetOption("e"));
+            Assert.AreEqual(5, cfg["Section0"]["SubSection0"].GetOption("f"));
             Assert.AreEqual(0, cfg["Section0"]["SubSection0"].Sections.Count);
 
             // Section1
             Assert.AreEqual(3, cfg["Section1"].Options.Count);
-            Assert.AreEqual<int>(10, cfg["Section1"].GetOption("a"));
-            Assert.AreEqual<int>(11, cfg["Section1"].GetOption("b"));
-            Assert.AreEqual<int>(12, cfg["Section1"].GetOption("c"));
+            Assert.AreEqual(10, cfg["Section1"].GetOption("a"));
+            Assert.AreEqual(11, cfg["Section1"].GetOption("b"));
+            Assert.AreEqual(12, cfg["Section1"].GetOption("c"));
             Assert.AreEqual(1, cfg["Section1"].Sections.Count);
 
             // Section1/SubSection0
             Assert.AreEqual(3, cfg["Section1"]["SubSection0"].Options.Count);
-            Assert.AreEqual<int>(13, cfg["Section1"]["SubSection0"].GetOption("d"));
-            Assert.AreEqual<int>(14, cfg["Section1"]["SubSection0"].GetOption("e"));
-            Assert.AreEqual<int>(15, cfg["Section1"]["SubSection0"].GetOption("f"));
+            Assert.AreEqual(13, cfg["Section1"]["SubSection0"].GetOption("d"));
+            Assert.AreEqual(14, cfg["Section1"]["SubSection0"].GetOption("e"));
+            Assert.AreEqual(15, cfg["Section1"]["SubSection0"].GetOption("f"));
             Assert.AreEqual(0, cfg["Section1"]["SubSection0"].Sections.Count);
 
             // Section1/SubSection0
@@ -66,8 +67,8 @@ namespace Configuration.Tests
             var cfg = ConfigFile.FromFile("data/GlobalOptions2.cfg");
             Assert.AreEqual(2, cfg.Options.Count);
             Assert.AreEqual(0, cfg.Sections.Count);
-            Assert.AreEqual<int>(0, cfg.GetOption("Option0"));
-            Assert.AreEqual<int>(1, cfg.GetOption("Option1"));
+            Assert.AreEqual(0, cfg.GetOption("Option0"));
+            Assert.AreEqual(1, cfg.GetOption("Option1"));
         }
 
         [TestMethod]
@@ -75,7 +76,7 @@ namespace Configuration.Tests
         {
             var cfg = ConfigFile.FromFile("data/InlineComment.cfg");
             Assert.AreEqual(1, cfg.Options.Count);
-            Assert.AreEqual<int>(42, cfg.GetOption("Option0"));
+            Assert.AreEqual(42, cfg.GetOption("Option0"));
         }
 
         [TestMethod]
@@ -83,7 +84,7 @@ namespace Configuration.Tests
         {
             var cfg = ConfigFile.FromFile("data/MultiLineComment.cfg");
             Assert.AreEqual(1, cfg.Options.Count);
-            Assert.AreEqual<int>(1337, cfg.GetOption("Option0"));
+            Assert.AreEqual(1337, cfg.GetOption("Option0"));
         }
 
         [TestMethod]
@@ -91,15 +92,15 @@ namespace Configuration.Tests
         {
             var cfg = ConfigFile.FromFile("data/SubSectionOptions.cfg");
             Assert.AreEqual(1, cfg.Options.Count);
-            Assert.AreEqual<int>(42, cfg.GetOption("Option0"));
+            Assert.AreEqual(42, cfg.GetOption("Option0"));
             Assert.AreEqual(1, cfg.Sections.Count);
 
             Assert.AreEqual(1, cfg["Section0"].Options.Count);
-            Assert.AreEqual<int>(43, cfg["Section0"].GetOption("Option0"));
+            Assert.AreEqual(43, cfg["Section0"].GetOption("Option0"));
             Assert.AreEqual(1, cfg["Section0"].Sections.Count);
 
             Assert.AreEqual(1, cfg["Section0"]["SubSection0"].Options.Count);
-            Assert.AreEqual<int>(44, cfg["Section0"]["SubSection0"].GetOption("Option0"));
+            Assert.AreEqual(44, cfg["Section0"]["SubSection0"].GetOption("Option0"));
             Assert.AreEqual(0, cfg["Section0"]["SubSection0"].Sections.Count);
         }
 

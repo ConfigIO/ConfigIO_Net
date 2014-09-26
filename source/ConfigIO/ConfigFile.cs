@@ -30,6 +30,8 @@ namespace Configuration
                                 KeyValueDelimiter = "=",
                                 SectionBodyBeginMarker = ":",
                                 IncludeBeginMarker = "[include]",
+                                LongValueBeginMarker = "\"",
+                                LongValueEndMarker = "\"",
                                 SingleLineCommentBeginMarker = "//",
                                 MultiLineCommentBeginMarker = "/*",
                                 MultiLineCommentEndMarker = "*/",
@@ -40,7 +42,7 @@ namespace Configuration
             Writer.Markers = SyntaxMarkers;
         }
     }
-    
+
     public class ConfigFile : ConfigSection
     {
         #region Static

@@ -142,7 +142,7 @@ namespace Configuration.FileIO
                     Error(stream, new InvalidIndentationException(currentIndentation, sectionIndentation));
                 }
 
-                var name = ParseIdentifier(stream);
+                var name = ParseName(stream);
 
                 if (stream.IsAt(Markers.KeyValueDelimiter))
                 {
@@ -154,7 +154,7 @@ namespace Configuration.FileIO
                     CheckStream(stream, ReadStep.ReadOptionValue);
 
                     // We are at the value of an option.
-                    var value = ParseIdentifier(stream);
+                    var value = ParseValue(stream);
 
                     if (name.TrimStart().StartsWith(Markers.IncludeBeginMarker))
                     {
@@ -242,14 +242,45 @@ namespace Configuration.FileIO
             }
         }
 
-        private string ParseIdentifier(StringStream stream)
+        private string ParseName(StringStream stream)
         {
             var start = new StringStream(stream);
-            var length = stream.SkipUntil(_ => stream.IsAtNewLine
-                                            || StreamIsAtIdentifier(stream));
+            var length = stream.SkipUntil(_ => stream.IsAtNewLine                                 // \n
+                                            || stream.IsAt(Markers.KeyValueDelimiter)             // =
+                                            || stream.IsAt(Markers.SectionBodyBeginMarker)        // :
+                                            || stream.IsAt(Markers.SingleLineCommentBeginMarker)  // //
+                                            || stream.IsAt(Markers.MultiLineCommentBeginMarker)); // /*
 
-            var identifier = start.Content.Substring(start.Index, length);
-            return identifier;
+            var name = start.Content.Substring(start.Index, length);
+            return name;
+        }
+
+        private string ParseValue(StringStream stream)
+        {
+            var start = new StringStream(stream);
+            var length = stream.SkipUntil(_ => stream.IsAtNewLine                                 // \n
+                                            || stream.IsAt(Markers.LongValueBeginMarker)          // "
+                                            || stream.IsAt(Markers.SingleLineCommentBeginMarker)  // //
+                                            || stream.IsAt(Markers.MultiLineCommentBeginMarker)); // /*
+
+            if (stream.IsAt(Markers.LongValueBeginMarker))
+            {
+                stream.Next(Markers.LongValueBeginMarker.Length);
+
+                start = new StringStream(stream);
+                length = stream.SkipUntil(_ => stream.IsAt(Markers.LongValueEndMarker));
+
+                if (!stream.IsAt(Markers.LongValueEndMarker))
+                {
+                    Error(stream, new InvalidSyntaxException(string.Format("Missing long-value end-marker \"{0}\".",
+                                                                           Markers.LongValueEndMarker)));
+                }
+
+                stream.Next(Markers.LongValueEndMarker.Length);
+            }
+
+            var value = start.Content.Substring(start.Index, length);
+            return value;
         }
 
         private void SkipWhiteSpaceAndComments(StringStream stream)
@@ -287,23 +318,15 @@ namespace Configuration.FileIO
         private void CheckStream(StringStream stream, ReadStep step)
         {
             if (stream.IsValid) { return; }
-            
+
             throw new NotImplementedException();
         }
 
-        private bool StreamIsAtIdentifier(StringStream stream)
-        {
-            return stream.IsAt(Markers.KeyValueDelimiter)
-                || stream.IsAt(Markers.SectionBodyBeginMarker)
-                || stream.IsAt(Markers.SingleLineCommentBeginMarker)
-                || stream.IsAt(Markers.MultiLineCommentBeginMarker);
-        }
-
-        private void Error(StringStream currentStream, Exception exception)
+        private void Error(StringStream currentStream, Exception inner)
         {
             throw new Exception(string.Format("Line {0}:",
                                               currentStream.CurrentLineNumber),
-                                exception);
+                                inner);
         }
     }
 
