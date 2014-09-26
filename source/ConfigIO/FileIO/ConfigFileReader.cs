@@ -213,7 +213,7 @@ namespace Configuration.FileIO
                         Name = Callbacks.OptionNameProcessor(name),
                         Value = Callbacks.OptionValueProcessor(string.Empty),
                     };
-                    section.AddOption(option);
+                    parent.Section.AddOption(option);
                 }
 
                 SkipWhiteSpaceAndComments(stream);
